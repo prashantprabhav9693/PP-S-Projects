@@ -634,14 +634,17 @@ function renderFarmerDashboard() {
             
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 
-                <!-- Left Sidebar: Market Intel -->
-                <div class="lg:col-span-3 space-y-6">
+                <!-- Left Column: KPIs (Market Intel) -->
+                <div class="lg:col-span-4 space-y-6">
                     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-                        <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4"><i class="fa-solid fa-chart-line mr-1 text-primary"></i> Market Prices</h3>
-                        <div class="space-y-3">
-                            ${appState.marketPrices.map(m => `
-                                <div class="flex justify-between items-center border-b border-gray-50 pb-2 last:border-0 last:pb-0">
-                                    <span class="font-semibold text-sm text-gray-700">${m.crop}</span>
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider"><i class="fa-solid fa-chart-line mr-1 text-primary"></i> Market Prices</h3>
+                            <span class="text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded font-bold">Today</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            ${appState.marketPrices.slice(0,4).map(m => `
+                                <div class="bg-gray-50 rounded p-2 border border-gray-100 flex flex-col items-center text-center">
+                                    <span class="font-semibold text-xs text-gray-700">${appState.t(m.crop)}</span>
                                     <span class="text-sm font-bold text-gray-900">${m.price}<span class="text-[10px] text-gray-400 font-normal">/${m.unit}</span></span>
                                 </div>
                             `).join('')}
@@ -649,166 +652,135 @@ function renderFarmerDashboard() {
                     </div>
                     
                     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-                        <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-4"><i class="fa-solid fa-users mr-1 text-blue-500"></i> Nearby Dealers</h3>
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider"><i class="fa-solid fa-users mr-1 text-blue-500"></i> Nearby Dealers</h3>
+                            <span class="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded font-bold">${appState.nearbyDealers.length} Active</span>
+                        </div>
                         <div class="space-y-3">
-                            <div class="flex items-center">
-                                <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs mr-3">RT</div>
-                                <div>
-                                    <p class="text-sm font-bold text-gray-800 leading-tight">Ramesh Traders</p>
-                                    <p class="text-[10px] text-gray-500">4 km • Highly Active</p>
+                            ${appState.nearbyDealers.slice(0,3).map(d => `
+                                <div class="flex items-center justify-between bg-gray-50 p-2 rounded border border-gray-100">
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs mr-3">${d.name.substring(0,2).toUpperCase()}</div>
+                                        <div>
+                                            <p class="text-xs font-bold text-gray-800 leading-tight">${d.name}</p>
+                                            <p class="text-[10px] text-gray-500">${d.distance} • ${d.intent}</p>
+                                        </div>
+                                    </div>
+                                    <span class="text-xs font-bold text-yellow-500"><i class="fa-solid fa-star"></i> ${d.rating}</span>
                                 </div>
-                            </div>
-                            <div class="flex items-center">
-                                <div class="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold text-xs mr-3">CM</div>
-                                <div>
-                                    <p class="text-sm font-bold text-gray-800 leading-tight">City Mandi</p>
-                                    <p class="text-[10px] text-gray-500">8 km • Buying Tomato</p>
-                                </div>
-                            </div>
+                            `).join('')}
                         </div>
                     </div>
                 </div>
 
-                <!-- Main Column: Actions & Workflows -->
-                <div class="lg:col-span-6 space-y-6">
-                    ${farmerViewState === 'situation' ? `
-                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 text-center">
-                            <div class="w-16 h-16 bg-green-50 text-green-600 rounded-full flex items-center justify-center text-2xl mx-auto mb-4"><i class="fa-solid fa-seedling"></i></div>
-                            <h3 class="text-lg font-bold text-gray-800 mb-2">Ready to sell your harvest?</h3>
-                            <p class="text-sm text-gray-500 mb-6">Enter your harvest details to generate a research-backed recommendation and get offers from nearby dealers.</p>
-                            <button onclick="farmerViewState='planner'; render();" class="bg-primary hover:bg-primaryDark text-white font-bold py-3 px-6 rounded-lg transition shadow-md w-full max-w-sm">
-                                Start Harvest Planner
-                            </button>
+                <!-- Right Column: Action Required -> Workflow -> History -->
+                <div class="lg:col-span-8 space-y-6">
+                    
+                    <!-- 1. Action Required (Planner / Recommendation) -->
+                    ${currentRecommendation ? `
+                        <div class="animate-fade-in bg-white rounded-xl shadow-lg border-2 ${currentRecommendation.needs_storage ? 'border-green-400' : 'border-orange-400'} overflow-hidden">
+                            <div class="p-4 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
+                                <div class="flex items-center">
+                                    <span class="text-2xl mr-2">${currentRecommendation.icon}</span>
+                                    <h2 class="text-md font-bold text-gray-900 leading-tight">${currentRecommendation.title}</h2>
+                                </div>
+                                <span class="bg-green-100 text-green-800 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider animate-pulse">Action Required</span>
+                            </div>
+                            
+                            <div class="p-5 grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2">Why this matters</h3>
+                                    <ul class="space-y-1 mb-4">
+                                        ${currentRecommendation.reasons.map(r => `<li class="flex items-center text-xs text-gray-700"><i class="fa-solid fa-check text-green-500 mr-1.5"></i> ${r}</li>`).join('')}
+                                    </ul>
+                                    <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2">Estimated Timeline</h3>
+                                    <p class="text-sm font-bold text-gray-800"><i class="fa-regular fa-clock text-blue-500 mr-1"></i> ${currentRecommendation.status === 'Immediate' ? 'Next 24-48 Hours' : 'Next 7-14 Days'}</p>
+                                </div>
+                                <div class="flex flex-col justify-between">
+                                    <div>
+                                        <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2">Expected Flow</h3>
+                                        <div class="bg-blue-50 text-blue-800 p-2 rounded text-xs font-bold text-center mb-4">
+                                            ${currentRecommendation.workflowVisual}
+                                        </div>
+                                    </div>
+                                    <button onclick="submitDraftRequest(this)" class="w-full bg-primary hover:bg-primaryDark text-white font-bold py-3 rounded-lg transition shadow-md text-sm">
+                                        Publish to Dealers
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     ` : `
-                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                            <div class="flex justify-between items-center mb-6">
-                                <h2 class="text-xl font-bold text-gray-800">Harvest Details</h2>
-                                <button onclick="farmerViewState='situation'; render();" class="text-xs font-bold text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+                        ${farmerViewState === 'situation' ? `
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col sm:flex-row items-center justify-between relative overflow-hidden">
+                                <div class="absolute -right-10 -bottom-10 text-green-50 opacity-50 text-9xl z-0"><i class="fa-solid fa-seedling"></i></div>
+                                <div class="z-10 text-center sm:text-left mb-4 sm:mb-0">
+                                    <h3 class="text-lg font-bold text-gray-800 mb-1">Ready to sell your harvest?</h3>
+                                    <p class="text-sm text-gray-500">Enter your harvest details to get AI recommendations and dealer offers.</p>
+                                </div>
+                                <button onclick="farmerViewState='planner'; render();" class="z-10 bg-primary hover:bg-primaryDark text-white font-bold py-2.5 px-6 rounded-lg transition shadow-md whitespace-nowrap">
+                                    Start Planner
+                                </button>
                             </div>
-                            <div id="harvest-form">
-                                <div class="grid grid-cols-2 gap-4 mb-4">
-                                    <div><label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Crop</label>
-                                    <select id="hpCrop" onchange="document.getElementById('hpCropOther').classList.toggle('hidden', this.value !== 'Other')" class="w-full border border-gray-300 rounded-md p-2 bg-gray-50 text-sm focus:border-primary focus:ring-1 focus:ring-primary" required>
-                                        <option value="" disabled selected>Select Crop</option>
-                                        <optgroup label="Vegetables">
+                        ` : `
+                            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                                <div class="flex justify-between items-center mb-4 border-b border-gray-100 pb-4">
+                                    <h2 class="text-lg font-bold text-gray-800">Harvest Details</h2>
+                                    <button onclick="farmerViewState='situation'; render();" class="text-xs font-bold text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+                                </div>
+                                <div id="harvest-form">
+                                    <div class="grid grid-cols-2 gap-4 mb-4">
+                                        <div><label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Crop</label>
+                                        <select id="hpCrop" onchange="document.getElementById('hpCropOther').classList.toggle('hidden', this.value !== 'Other')" class="w-full border border-gray-300 rounded-md p-2 bg-gray-50 text-sm focus:border-primary focus:ring-1 focus:ring-primary" required>
+                                            <option value="" disabled selected>Select Crop</option>
                                             <option value="Tomato">Tomato</option>
                                             <option value="Potato">Potato</option>
                                             <option value="Onion">Onion</option>
-                                            <option value="Cabbage">Cabbage</option>
-                                            <option value="Cauliflower">Cauliflower</option>
-                                            <option value="Brinjal">Brinjal</option>
-                                            <option value="Capsicum">Capsicum</option>
-                                            <option value="Chilli">Chilli</option>
-                                            <option value="Beans">Beans</option>
-                                            <option value="Carrot">Carrot</option>
-                                            <option value="Beetroot">Beetroot</option>
-                                            <option value="Cucumber">Cucumber</option>
-                                        </optgroup>
-                                        <optgroup label="Fruits">
-                                            <option value="Mango">Mango</option>
-                                            <option value="Banana">Banana</option>
-                                            <option value="Grapes">Grapes</option>
-                                            <option value="Papaya">Papaya</option>
-                                        </optgroup>
-                                        <optgroup label="Others">
-                                            <option value="Ginger">Ginger</option>
-                                            <option value="Turmeric">Turmeric</option>
-                                            <option value="Other">Other (Manual)</option>
-                                        </optgroup>
-                                    </select>
-                                    <input type="text" id="hpCropOther" class="hidden mt-2 w-full border border-gray-300 rounded-md p-2 bg-gray-50 text-sm focus:border-primary focus:ring-1 focus:ring-primary" placeholder="Enter crop name">
-                                    </div>
-                                    <div><label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Quantity</label>
-                                    <div class="flex gap-2">
-                                        <input type="number" id="hpQty" class="w-1/2 border border-gray-300 rounded-md p-2 bg-gray-50 text-sm focus:border-primary focus:ring-1 focus:ring-primary" placeholder="e.g. 400" required>
-                                        <select id="hpUnit" class="w-1/2 border border-gray-300 rounded-md p-2 bg-gray-50 text-sm focus:border-primary focus:ring-1 focus:ring-primary" required>
-                                            <option value="kg">kg</option>
-                                            <option value="Bags">Bags</option>
-                                            <option value="Quintals">Quintals</option>
-                                            <option value="Tons">Tons</option>
-                                            <option value="Crates">Crates</option>
+                                            <option value="Other">Other</option>
                                         </select>
+                                        <input type="text" id="hpCropOther" class="hidden mt-2 w-full border border-gray-300 rounded-md p-2 bg-gray-50 text-sm focus:border-primary focus:ring-1 focus:ring-primary" placeholder="Enter crop name">
+                                        </div>
+                                        <div><label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Quantity</label>
+                                        <div class="flex gap-2">
+                                            <input type="number" id="hpQty" class="w-1/2 border border-gray-300 rounded-md p-2 bg-gray-50 text-sm focus:border-primary focus:ring-1 focus:ring-primary" placeholder="400" required>
+                                            <select id="hpUnit" class="w-1/2 border border-gray-300 rounded-md p-2 bg-gray-50 text-sm focus:border-primary focus:ring-1 focus:ring-primary" required>
+                                                <option value="kg">kg</option>
+                                                <option value="Quintals">Quintals</option>
+                                            </select>
+                                        </div>
+                                        </div>
                                     </div>
+                                    <div class="grid grid-cols-2 gap-4 mb-4">
+                                        <div><label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Harvest Date</label>
+                                        <input type="date" id="hpDate" class="w-full border border-gray-300 rounded-md p-2 bg-gray-50 text-sm focus:border-primary focus:ring-1 focus:ring-primary" required></div>
+                                        <div><label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Village</label>
+                                        <select id="hpVillage" class="w-full border border-gray-300 rounded-md p-2 bg-gray-50 text-sm focus:border-primary focus:ring-1 focus:ring-primary" required>
+                                            <option value="Anekal">Anekal</option>
+                                            <option value="Jigani">Jigani</option>
+                                        </select></div>
                                     </div>
+                                    <button type="button" onclick="handleHarvestPlan(event)" class="w-full bg-dark hover:bg-gray-700 text-white font-medium py-2 rounded-md transition shadow-md text-sm">
+                                        Generate Recommendation
+                                    </button>
                                 </div>
-                                <div class="grid grid-cols-2 gap-4 mb-4">
-                                    <div><label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Harvest Date</label>
-                                    <input type="date" id="hpDate" class="w-full border border-gray-300 rounded-md p-2 bg-gray-50 text-sm focus:border-primary focus:ring-1 focus:ring-primary" required></div>
-                                    <div><label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Village</label>
-                                    <select id="hpVillage" class="w-full border border-gray-300 rounded-md p-2 bg-gray-50 text-sm focus:border-primary focus:ring-1 focus:ring-primary" required>
-                                        <option value="" disabled selected>Select Village</option>
-                                        <option value="Anekal">Anekal</option>
-                                        <option value="Jigani">Jigani</option>
-                                        <option value="Attibele">Attibele</option>
-                                        <option value="Sarjapur">Sarjapur</option>
-                                    </select></div>
-                                </div>
-
-                                <button type="button" onclick="handleHarvestPlan(event)" class="w-full bg-dark hover:bg-gray-700 text-white font-medium py-3 rounded-md transition shadow-md">
-                                    Generate Recommendation
-                                </button>
                             </div>
-                        </div>
+                        `}
                     `}
 
-                    <div class="flex space-x-2 mb-6 border-b border-gray-200 pb-2">
-                        <button onclick="farmerTabState='active'; render();" class="px-4 py-2 text-sm font-bold rounded-lg transition ${farmerTabState === 'active' ? 'bg-primary text-white shadow-sm' : 'bg-transparent text-gray-500 hover:bg-gray-100'}">Active Orders</button>
-                        <button onclick="farmerTabState='history'; render();" class="px-4 py-2 text-sm font-bold rounded-lg transition ${farmerTabState === 'history' ? 'bg-primary text-white shadow-sm' : 'bg-transparent text-gray-500 hover:bg-gray-100'}">Order History</button>
+                    <!-- 2. & 3. Active Workflow & History -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="flex bg-gray-50 border-b border-gray-200">
+                            <button onclick="farmerTabState='active'; render();" class="flex-1 py-3 text-sm font-bold transition border-b-2 ${farmerTabState === 'active' ? 'border-primary text-primary bg-white' : 'border-transparent text-gray-500 hover:bg-gray-100'}">Active Workflows</button>
+                            <button onclick="farmerTabState='history'; render();" class="flex-1 py-3 text-sm font-bold transition border-b-2 ${farmerTabState === 'history' ? 'border-primary text-primary bg-white' : 'border-transparent text-gray-500 hover:bg-gray-100'}">Order History</button>
+                        </div>
+                        
+                        <div class="p-5 max-h-[400px] overflow-y-auto">
+                            ${farmerTabState === 'active' ? `
+                                ${activeReqs.length > 0 ? activeReqs : '<div class="text-center py-8 text-gray-400 text-sm"><i class="fa-solid fa-folder-open text-3xl mb-2 text-gray-300"></i><br>No active workflows found.</div>'}
+                            ` : `
+                                ${completedReqs.length > 0 ? historyHtml : '<div class="text-center py-8 text-gray-400 text-sm"><i class="fa-solid fa-clock-rotate-left text-3xl mb-2 text-gray-300"></i><br>No order history available.</div>'}
+                            `}
+                        </div>
                     </div>
-
-                    ${farmerTabState === 'active' ? `
-                        ${activeReqs.length > 0 ? `
-                            <div>
-                                ${activeReqs}
-                            </div>
-                        ` : '<div class="text-center p-8 bg-white shadow-sm rounded-xl border border-gray-200 text-gray-500 text-sm">No active orders found. Generate a recommendation to get started.</div>'}
-                    ` : `
-                        ${completedReqs.length > 0 ? `
-                            <div>
-                                ${historyHtml}
-                            </div>
-                        ` : '<div class="text-center p-8 bg-white shadow-sm rounded-xl border border-gray-200 text-gray-500 text-sm">No order history available.</div>'}
-                    `}
-                </div>
-
-                <!-- Right Sidebar: Recommendation & History -->
-                <div class="lg:col-span-3 space-y-6">
-                    ${currentRecommendation ? `
-                        <div class="animate-fade-in bg-white rounded-xl shadow-lg border-2 ${currentRecommendation.needs_storage ? 'border-green-400' : 'border-orange-400'} overflow-hidden sticky top-24">
-                            <div class="p-4 bg-gray-50 border-b border-gray-100 flex items-center">
-                                <span class="text-2xl mr-2">${currentRecommendation.icon}</span>
-                                <h2 class="text-md font-bold text-gray-900 leading-tight">${currentRecommendation.title}</h2>
-                            </div>
-                            
-                            <div class="p-4">
-                                <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2">Reason</h3>
-                                <ul class="space-y-1 mb-4">
-                                    ${currentRecommendation.reasons.map(r => `<li class="flex items-center text-xs text-gray-700"><i class="fa-solid fa-check text-green-500 mr-1.5"></i> ${r}</li>`).join('')}
-                                </ul>
-
-                                <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2">Expected Flow</h3>
-                                <div class="bg-blue-50 text-blue-800 p-2 rounded text-xs font-bold text-center mb-4">
-                                    ${currentRecommendation.workflowVisual}
-                                <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2 mt-4">Estimated Timeline</h3>
-                                <p class="text-sm font-bold text-gray-800 mb-4"><i class="fa-regular fa-clock text-blue-500 mr-1"></i> ${currentRecommendation.status === 'Immediate' ? 'Next 24-48 Hours' : 'Next 7-14 Days'}</p>
-
-                                <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2">Next Step</h3>
-                                <p class="text-sm font-bold text-gray-800 mb-6"><i class="fa-solid fa-arrow-right text-green-500 mr-1"></i> ${currentRecommendation.suggestedSteps[0]}</p>
-
-                                <button onclick="submitDraftRequest(this)" class="w-full bg-primary hover:bg-primaryDark text-white font-bold py-2.5 rounded-lg transition shadow text-sm">
-                                    Publish to Dealers
-                                </button>
-                            </div>
-                        </div>
-                    ` : `
-                        <!-- Placeholder when no recommendation is active -->
-                        <div class="bg-gray-50 border border-gray-200 border-dashed rounded-xl p-8 text-center flex flex-col items-center justify-center text-gray-400">
-                            <i class="fa-solid fa-wand-magic-sparkles text-3xl mb-3"></i>
-                            <p class="text-sm font-bold">Waiting for details</p>
-                            <p class="text-xs mt-1">Submit your harvest plan to see AI recommendations here.</p>
-                        </div>
-                    `}
                 </div>
             </div>
         </div>
@@ -837,40 +809,41 @@ function renderDealerDashboard() {
     
     let oppHtml = '';
     if (opportunities.length === 0) {
-        oppHtml = `<div class="bg-white p-8 rounded-xl border border-gray-200 text-center text-gray-500 shadow-sm flex flex-col items-center"><i class="fa-solid fa-satellite-dish text-4xl mb-3 text-gray-300"></i><p>Scanning market... No new harvests available nearby.</p></div>`;
+        oppHtml = `<div class="h-full flex flex-col items-center justify-center text-center text-gray-400 py-10"><i class="fa-solid fa-satellite-dish text-4xl mb-3 text-gray-300"></i><p class="text-sm">Scanning market... No new harvests available.</p></div>`;
     } else {
-        oppHtml = `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">`;
+        oppHtml = `<div class="space-y-4">`;
         opportunities.forEach(req => {
-            const distance = Math.floor(Math.random() * 15) + 2; // Mock distance
-            const estValue = (parseInt(req.quantity) || 100) * 15; // Mock value
+            const distance = Math.floor(Math.random() * 15) + 2; 
+            const estValue = (parseInt(req.quantity) || 100) * 15; 
             
             oppHtml += `
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 relative card-lift flex flex-col justify-between h-full">
-                    <button onclick="appState.dealerRejectOffer('${req.id}')" class="absolute top-3 left-3 text-gray-300 hover:text-red-500 transition" title="Reject Request"><i class="fa-solid fa-xmark"></i></button>
-                    <div>
-                        <div class="absolute top-4 right-4 flex items-center bg-green-50 text-green-700 text-[10px] font-bold px-2 py-1 rounded border border-green-100">
-                            <span class="w-2 h-2 rounded-full bg-green-500 mr-1 animate-pulse"></span> LIVE
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 relative card-lift">
+                    <button onclick="appState.dealerRejectOffer('${req.id}')" class="absolute top-3 right-3 text-gray-300 hover:text-red-500 transition" title="Reject Request"><i class="fa-solid fa-xmark"></i></button>
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <div class="flex items-center mb-1">
+                                <span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5 animate-pulse"></span>
+                                <span class="text-[10px] font-bold text-green-700 uppercase tracking-wider">Live Match</span>
+                            </div>
+                            <h3 class="text-md font-bold text-gray-900 capitalize">${req.crop} <span class="text-primary ml-1">${req.quantity}</span></h3>
                         </div>
-                        <h3 class="text-lg font-bold text-gray-900 mb-1 capitalize mt-4">${req.crop}</h3>
-                        <p class="text-xl text-primary font-bold mb-3">${req.quantity}</p>
-                        
-                        <div class="space-y-1 mb-4">
-                            <p class="text-xs text-gray-600 flex justify-between"><span><i class="fa-solid fa-location-dot w-4 text-center text-gray-400"></i> ${req.village}</span> <span class="text-gray-400">~${distance} km</span></p>
-                            <p class="text-xs text-gray-600 flex justify-between"><span><i class="fa-solid fa-calendar w-4 text-center text-gray-400"></i> Harvest</span> <span class="font-bold">${req.harvest_date}</span></p>
-                            <p class="text-xs text-gray-600 flex justify-between"><span><i class="fa-solid fa-bolt w-4 text-center text-gray-400"></i> Urgency</span> <span class="text-orange-500 font-bold">Immediate Sale</span></p>
-                            <p class="text-xs text-gray-600 flex justify-between"><span><i class="fa-solid fa-indian-rupee-sign w-4 text-center text-gray-400"></i> Est. Value</span> <span class="text-green-600 font-bold">₹${estValue.toLocaleString()}</span></p>
-                            <p class="text-[10px] text-gray-400 mt-2">${req.needs_storage ? '<i class="fa-solid fa-snowflake mr-1"></i> Storage Required' : ''}</p>
+                        <div class="text-right mt-1">
+                            <p class="text-sm font-bold text-green-600">₹${estValue.toLocaleString()}</p>
+                            <p class="text-[10px] text-gray-400">Est. Value</p>
                         </div>
                     </div>
                     
-                    <div class="mt-auto border-t border-gray-100 pt-3">
-                        <label class="block text-[10px] font-bold text-gray-500 uppercase mb-1">Your Offer Price (₹/unit)</label>
-                        <div class="flex items-center gap-2">
-                            <input type="number" id="offer-${req.id}" placeholder="e.g. 18" class="w-1/2 border border-gray-300 rounded p-2 text-center font-bold text-gray-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500" required>
-                            <button onclick="appState.dealerMakeOffer('${req.id}')" class="w-1/2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded transition shadow-sm text-sm">
-                                Make Offer
-                            </button>
-                        </div>
+                    <div class="grid grid-cols-2 gap-2 text-xs text-gray-600 mb-4 bg-gray-50 p-2 rounded">
+                        <p><span><i class="fa-solid fa-location-dot w-3 text-gray-400"></i> ${req.village}</span> <span class="text-gray-400 ml-1">~${distance}km</span></p>
+                        <p><span><i class="fa-solid fa-calendar w-3 text-gray-400"></i> Har:</span> <span class="font-bold">${req.harvest_date}</span></p>
+                        <p class="col-span-2 text-[10px] text-gray-500">${req.needs_storage ? '<i class="fa-solid fa-snowflake mr-1 text-cyan-500"></i> Needs Cold Storage' : ''}</p>
+                    </div>
+                    
+                    <div class="border-t border-gray-100 pt-3 flex items-center gap-2">
+                        <input type="number" id="offer-${req.id}" placeholder="Offer Price (₹/kg)" class="w-1/2 border border-gray-300 rounded p-1.5 text-sm font-bold text-gray-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500" required>
+                        <button onclick="appState.dealerMakeOffer('${req.id}')" class="w-1/2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-1.5 rounded transition shadow-sm text-xs">
+                            Make Offer
+                        </button>
                     </div>
                 </div>
             `;
@@ -880,20 +853,20 @@ function renderDealerDashboard() {
 
     let procHtml = '';
     if (procurementsToDisplay.length === 0) {
-        procHtml = `<div class="bg-gray-50 p-6 rounded-xl border border-gray-200 border-dashed text-center text-gray-400 text-sm shadow-sm">No ${dealerTabState} procurements found.</div>`;
+        procHtml = `<div class="h-full flex items-center justify-center text-center text-gray-400 py-10 text-sm">No ${dealerTabState} procurements found.</div>`;
     } else {
-        procHtml = `<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">`;
+        procHtml = `<div class="space-y-4">`;
         procurementsToDisplay.forEach(req => {
             const tStatus = req.transport_status;
             const sStatus = req.storage_status;
             const price = req.dealer_status.includes('_') ? req.dealer_status.split('_')[1] : '18';
             
             procHtml += `
-                <div class="bg-white border-l-4 ${req.status === 'completed' ? 'border-l-green-500' : 'border-l-blue-500'} rounded-xl p-5 shadow-sm border border-gray-200 flex flex-col justify-between h-full">
-                    <div class="flex justify-between items-start mb-4">
+                <div class="bg-white border-l-4 ${req.status === 'completed' ? 'border-l-green-500' : 'border-l-blue-500'} rounded-lg p-4 shadow-sm border border-gray-200">
+                    <div class="flex justify-between items-start mb-3">
                         <div>
-                            <p class="font-bold text-gray-900 text-lg capitalize">${req.crop} <span class="text-gray-500 font-normal text-sm">(${req.quantity})</span></p>
-                            <p class="text-sm text-gray-600"><i class="fa-solid fa-location-dot w-4"></i> ${req.village}</p>
+                            <p class="font-bold text-gray-900 text-md capitalize">${req.crop} <span class="text-gray-500 font-normal text-xs">(${req.quantity})</span></p>
+                            <p class="text-[10px] text-gray-500 mt-0.5"><i class="fa-solid fa-location-dot w-3"></i> ${req.village}</p>
                         </div>
                         <div class="text-right">
                             <p class="text-sm font-bold text-gray-800">₹${price}/kg</p>
@@ -901,31 +874,26 @@ function renderDealerDashboard() {
                         </div>
                     </div>
                     
-                    ${req.status === 'completed' ? `
-                        <div class="mt-auto bg-green-50 text-green-800 text-center py-2 rounded font-bold text-sm border border-green-100">
-                            <i class="fa-solid fa-check-circle mr-1"></i> Delivery Completed
+                    <div class="grid grid-cols-2 gap-2 text-xs border-t border-gray-50 pt-3">
+                        <div class="flex flex-col">
+                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1"><i class="fa-solid fa-truck w-3"></i> Transport</span>
+                            ${tStatus === 'none' ? `<button onclick="appState.dealerBookLogistics('${req.id}')" class="bg-orange-50 hover:bg-orange-100 text-orange-600 font-bold py-1 px-2 rounded border border-orange-200 transition text-[10px]">Book Truck</button>` : 
+                              tStatus === 'requested' ? `<span class="text-yellow-600 font-medium bg-yellow-50 px-2 py-1 rounded border border-yellow-100 inline-block text-center text-[10px]">Pending</span>` : 
+                              tStatus === 'confirmed' ? `<span class="text-blue-600 font-medium bg-blue-50 px-2 py-1 rounded border border-blue-100 inline-block text-center text-[10px]">On Route</span>` : 
+                              tStatus === 'rejected' ? `<span class="text-red-600 font-medium bg-red-50 px-2 py-1 rounded border border-red-100 inline-block text-center text-[10px]">Rejected - Rebook</span>` :
+                              `<span class="text-green-600 font-medium bg-green-50 px-2 py-1 rounded border border-green-100 inline-block text-center text-[10px]">Delivered</span>`}
                         </div>
-                    ` : `
-                        <div class="mt-auto grid grid-cols-2 gap-2">
-                            ${req.needs_storage ? `
-                                <button 
-                                    onclick="${sStatus === 'none' ? `appState.dealerReserveStorage('${req.id}')` : ''}" 
-                                    class="w-full py-2 rounded text-xs font-bold shadow-sm transition flex flex-col items-center justify-center h-14 ${sStatus === 'none' ? 'bg-cyan-50 text-cyan-700 border border-cyan-200 hover:bg-cyan-100' : 'bg-gray-50 text-gray-400 border border-gray-200 cursor-not-allowed'}"
-                                    ${sStatus !== 'none' ? 'disabled' : ''}>
-                                    <i class="fa-solid fa-snowflake mb-1 text-sm"></i> 
-                                    ${sStatus === 'none' ? 'Request Storage' : sStatus === 'requested' ? 'Pending Approval' : 'Storage Confirmed'}
-                                </button>
-                            ` : `<div class="bg-gray-50 border border-gray-100 rounded flex flex-col items-center justify-center h-14 text-gray-400 text-xs font-bold"><i class="fa-solid fa-ban mb-1"></i> No Storage Req.</div>`}
-                            
-                            <button 
-                                onclick="${tStatus === 'none' ? `appState.dealerBookLogistics('${req.id}')` : ''}" 
-                                class="w-full py-2 rounded text-xs font-bold shadow-sm transition flex flex-col items-center justify-center h-14 ${tStatus === 'none' ? 'bg-orange-50 text-orange-700 border border-orange-200 hover:bg-orange-100' : 'bg-gray-50 text-gray-400 border border-gray-200 cursor-not-allowed'}"
-                                ${tStatus !== 'none' ? 'disabled' : ''}>
-                                <i class="fa-solid fa-truck mb-1 text-sm"></i> 
-                                ${tStatus === 'none' ? 'Book Transport' : tStatus === 'requested' ? 'Transport Requested' : 'Transport Confirmed'}
-                            </button>
+                        <div class="flex flex-col">
+                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1"><i class="fa-solid fa-snowflake w-3"></i> Storage</span>
+                            ${req.needs_storage ? (
+                                sStatus === 'none' ? `<button onclick="appState.dealerBookStorage('${req.id}')" class="bg-cyan-50 hover:bg-cyan-100 text-cyan-700 font-bold py-1 px-2 rounded border border-cyan-200 transition text-[10px]">Reserve Space</button>` : 
+                                sStatus === 'requested' ? `<span class="text-yellow-600 font-medium bg-yellow-50 px-2 py-1 rounded border border-yellow-100 inline-block text-center text-[10px]">Pending</span>` : 
+                                sStatus === 'approved' ? `<span class="text-green-600 font-medium bg-green-50 px-2 py-1 rounded border border-green-100 inline-block text-center text-[10px]">Approved</span>` : 
+                                sStatus === 'rejected' ? `<span class="text-red-600 font-medium bg-red-50 px-2 py-1 rounded border border-red-100 inline-block text-center text-[10px]">Rejected</span>` : 
+                                `<span class="text-green-600 font-medium bg-green-50 px-2 py-1 rounded border border-green-100 inline-block text-center text-[10px]">Stored</span>`
+                            ) : `<span class="text-gray-400 italic py-1 px-2 text-[10px]">Not Required</span>`}
                         </div>
-                    `}
+                    </div>
                 </div>
             `;
         });
@@ -933,20 +901,19 @@ function renderDealerDashboard() {
     }
 
     return `
-        <div class="animate-slide-up w-full max-w-7xl mx-auto">
-            <div class="flex justify-between items-end mb-6">
+        <div class="animate-slide-up w-full max-w-7xl mx-auto pb-4">
+            <div class="flex justify-between items-end mb-4">
                 <div>
-                    <h2 class="text-2xl font-bold text-gray-800">Dealer Command Center</h2>
-                    <p class="text-sm text-gray-500 mt-1">Manage procurement bids and coordinate downstream supply chain.</p>
+                    <h2 class="text-xl md:text-2xl font-bold text-gray-800">Dealer Command Center</h2>
+                    <p class="text-xs md:text-sm text-gray-500 mt-1">Manage procurement bids and coordinate downstream supply chain.</p>
                 </div>
                 <div class="hidden md:flex space-x-2">
-                    <button class="bg-white border border-gray-200 text-gray-600 px-3 py-1.5 rounded text-sm font-bold shadow-sm hover:bg-gray-50"><i class="fa-solid fa-filter mr-1"></i> Filter</button>
-                    <button class="bg-white border border-gray-200 text-gray-600 px-3 py-1.5 rounded text-sm font-bold shadow-sm hover:bg-gray-50"><i class="fa-solid fa-chart-bar mr-1"></i> Analytics</button>
+                    <button class="bg-white border border-gray-200 text-gray-600 px-3 py-1.5 rounded-lg text-sm font-bold shadow-sm hover:bg-gray-50"><i class="fa-solid fa-filter mr-1"></i> Filter</button>
                 </div>
             </div>
 
             <!-- KPI Summary Cards -->
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 border-l-4 border-l-blue-500">
                     <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Active Procurements</p>
                     <p class="text-2xl font-black text-gray-800">${kpiActive}</p>
@@ -965,20 +932,38 @@ function renderDealerDashboard() {
                 </div>
             </div>
 
-            <div class="mb-10">
-                <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center"><i class="fa-solid fa-broadcast-tower text-blue-500 mr-2"></i> Market Opportunities</h3>
-                ${oppHtml}
-            </div>
-
-            <div>
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-bold text-gray-800 flex items-center"><i class="fa-solid fa-box-check text-green-500 mr-2"></i> My Procurements</h3>
-                    <div class="flex space-x-2">
-                        <button onclick="dealerTabState='active'; render();" class="px-3 py-1 text-xs font-bold rounded-lg transition ${dealerTabState === 'active' ? 'bg-primary text-white shadow-sm' : 'bg-transparent text-gray-500 hover:bg-gray-100'}">Active</button>
-                        <button onclick="dealerTabState='completed'; render();" class="px-3 py-1 text-xs font-bold rounded-lg transition ${dealerTabState === 'completed' ? 'bg-primary text-white shadow-sm' : 'bg-transparent text-gray-500 hover:bg-gray-100'}">Completed</button>
+            <!-- Main Content: 2 Columns for 13-inch screen -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                <!-- Left Column: Incoming Offers -->
+                <div class="lg:col-span-6">
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col h-[450px]">
+                        <div class="p-3 border-b border-gray-100 bg-gray-50 flex justify-between items-center z-10 shadow-sm">
+                            <h3 class="text-sm font-bold text-gray-800 flex items-center"><i class="fa-solid fa-broadcast-tower text-blue-500 mr-2"></i> Incoming Offers</h3>
+                            <span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded-full">Live</span>
+                        </div>
+                        <div class="p-4 overflow-y-auto flex-grow bg-gray-50/50">
+                            ${oppHtml}
+                        </div>
                     </div>
                 </div>
-                ${procHtml}
+
+                <!-- Right Column: Logistics Tracker -->
+                <div class="lg:col-span-6">
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col h-[450px]">
+                        <div class="p-3 border-b border-gray-100 bg-gray-50 flex justify-between items-center z-10 shadow-sm">
+                            <h3 class="text-sm font-bold text-gray-800 flex items-center"><i class="fa-solid fa-box-check text-green-500 mr-2"></i> Logistics Tracker</h3>
+                            <div class="flex space-x-1 bg-white border border-gray-200 p-0.5 rounded-md">
+                                <button onclick="dealerTabState='active'; render();" class="px-2 py-1 text-[10px] font-bold rounded transition ${dealerTabState === 'active' ? 'bg-primary text-white shadow-sm' : 'bg-transparent text-gray-500 hover:bg-gray-100'}">Active</button>
+                                <button onclick="dealerTabState='completed'; render();" class="px-2 py-1 text-[10px] font-bold rounded transition ${dealerTabState === 'completed' ? 'bg-primary text-white shadow-sm' : 'bg-transparent text-gray-500 hover:bg-gray-100'}">Done</button>
+                            </div>
+                        </div>
+                        <div class="p-4 overflow-y-auto flex-grow bg-gray-50/50">
+                            ${procHtml}
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     `;
