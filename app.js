@@ -754,11 +754,7 @@ function renderFarmerDashboard() {
                             `).join('')}
                             </div>
                         </div>
-                                    <span class="text-xs font-bold text-yellow-500"><i class="fa-solid fa-star"></i> ${d.rating}</span>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
+
                 </div>
 
                 <!-- Right Column: Action Required -> Workflow -> History -->
