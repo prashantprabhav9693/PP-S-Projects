@@ -725,11 +725,11 @@ function renderFarmerDashboard() {
                             ${appState.nearbyDealers.slice(0,5).map(d => `
                                 <div class="flex items-center justify-between bg-gray-50 p-2 rounded border border-gray-100">
                                     <div class="flex items-center">
-                                        <div class="w-8 h-8 rounded-full ${d.type === 'FPO' ? 'bg-purple-100 text-purple-600' : d.type === 'Supermarket' ? 'bg-orange-100 text-orange-600' : 'bg-blue-100 text-blue-600'} flex items-center justify-center font-bold text-xs mr-3">
-                                            ${d.type === 'FPO' ? '<i class="fa-solid fa-users"></i>' : d.type === 'Supermarket' ? '<i class="fa-solid fa-building"></i>' : d.name.substring(0,2).toUpperCase()}
+                                        <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs mr-3">
+                                            ${d.name.substring(0,2).toUpperCase()}
                                         </div>
                                         <div>
-                                            <p class="text-xs font-bold text-gray-800 leading-tight">${d.name} ${d.type === 'FPO' || d.type === 'Supermarket' ? `<span class="ml-1 bg-yellow-100 text-yellow-800 text-[9px] px-1 rounded-full uppercase tracking-wider">${d.type}</span>` : ''}</p>
+                                            <p class="text-xs font-bold text-gray-800 leading-tight">${d.name}</p>
                                             <p class="text-[10px] text-gray-500">${d.distance} • ${d.intent}</p>
                                         </div>
                                     </div>
@@ -737,6 +737,7 @@ function renderFarmerDashboard() {
                                 </div>
                             `).join('')}
                         </div>
+                    </div>
                 </div>
 
                 <!-- Right Column: Action Required -> Workflow -> History -->
