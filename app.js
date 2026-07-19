@@ -135,6 +135,14 @@ const appState = {
             this.notify('Farmer accepted your offer.', 'dealer');
             render();
             if (supabaseClient) await supabaseClient.from('requests').update({ status: req.status, dealer_status: req.dealer_status }).eq('id', id);
+            
+            // Fire Automation 2 Webhook (Offer Accepted)
+            fetch('https://prabhav-prashant.app.n8n.cloud/webhook/offer-accepted', {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(req)
+            }).catch(e => console.log('n8n error:', e));
         }
     },
     
@@ -161,19 +169,35 @@ const appState = {
         const req = this.requests.find(r => r.id === id);
         if (req) {
             req.transport_status = 'requested';
-            this.notify('New transport request from Dealer.', 'logistics');
+            this.notify('Logistics booked successfully.', 'dealer');
             render();
             if (supabaseClient) await supabaseClient.from('requests').update({ transport_status: req.transport_status }).eq('id', id);
+            
+            // Fire Automation 2 Webhook
+            fetch('https://prabhav-prashant.app.n8n.cloud/webhook/logistics-dispatch', {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(req)
+            }).catch(e => console.log('n8n error:', e));
         }
     },
-    
-    dealerReserveStorage: async function(id) {
+
+    dealerBookStorage: async function(id) {
         const req = this.requests.find(r => r.id === id);
         if (req) {
             req.storage_status = 'requested';
-            this.notify('New storage reservation request.', 'storage');
+            this.notify('Storage space requested.', 'dealer');
             render();
             if (supabaseClient) await supabaseClient.from('requests').update({ storage_status: req.storage_status }).eq('id', id);
+            
+            // Fire Automation 3 Webhook
+            fetch('https://prabhav-prashant.app.n8n.cloud/webhook/storage-reservation', {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(req)
+            }).catch(e => console.log('n8n error:', e));
         }
     },
 
