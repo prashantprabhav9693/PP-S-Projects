@@ -718,21 +718,42 @@ function renderFarmerDashboard() {
                     
                     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
                         <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider"><i class="fa-solid fa-users mr-1 text-blue-500"></i> Nearby Dealers</h3>
-                            <span class="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded font-bold">${appState.nearbyDealers.length} Active</span>
-                        </div>
-                        <div class="space-y-3">
-                            ${appState.nearbyDealers.slice(0,5).map(d => `
-                                <div class="flex items-center justify-between bg-gray-50 p-2 rounded border border-gray-100 mb-2">
+                            <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2"><i class="fa-solid fa-store mr-1 text-blue-500"></i> Wholesale Dealers</h3>
+                            <div class="space-y-2 mb-4">
+                            ${appState.nearbyDealers.filter(d => d.type === 'Dealer').slice(0,3).map(d => `
+                                <div class="flex items-center justify-between bg-gray-50 p-2 rounded border border-gray-100">
                                     <div class="flex items-center">
-                                        <div class="w-8 h-8 rounded-full ${d.type === 'FPO' ? 'bg-purple-100 text-purple-600' : d.type === 'Supermarket' ? 'bg-orange-100 text-orange-600' : 'bg-blue-100 text-blue-600'} flex items-center justify-center font-bold text-xs mr-3">
-                                            ${d.type === 'FPO' ? '<i class="fa-solid fa-users"></i>' : d.type === 'Supermarket' ? '<i class="fa-solid fa-building"></i>' : d.name.substring(0,2).toUpperCase()}
+                                        <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs mr-3">
+                                            ${d.name.substring(0,2).toUpperCase()}
                                         </div>
                                         <div>
-                                            <p class="text-xs font-bold text-gray-800 leading-tight">${d.name} ${d.type === 'FPO' || d.type === 'Supermarket' ? `<span class="ml-1 bg-yellow-100 text-yellow-800 text-[9px] px-1 rounded-full uppercase tracking-wider">${d.type}</span>` : ''}</p>
+                                            <p class="text-xs font-bold text-gray-800 leading-tight">${d.name}</p>
                                             <p class="text-[10px] text-gray-500">${d.distance} • ${d.intent}</p>
                                         </div>
                                     </div>
+                                    <span class="text-xs font-bold text-yellow-500"><i class="fa-solid fa-star"></i> ${d.rating}</span>
+                                </div>
+                            `).join('')}
+                            </div>
+                            
+                            <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 pt-2 border-t border-gray-100"><i class="fa-solid fa-building mr-1 text-purple-500"></i> Institutional Buyers</h3>
+                            <div class="space-y-2">
+                            ${appState.nearbyDealers.filter(d => d.type !== 'Dealer').slice(0,3).map(d => `
+                                <div class="flex items-center justify-between bg-gray-50 p-2 rounded border border-gray-100">
+                                    <div class="flex items-center">
+                                        <div class="w-8 h-8 rounded-full ${d.type === 'FPO' ? 'bg-purple-100 text-purple-600' : 'bg-orange-100 text-orange-600'} flex items-center justify-center font-bold text-xs mr-3">
+                                            ${d.type === 'FPO' ? '<i class="fa-solid fa-users"></i>' : '<i class="fa-solid fa-building"></i>'}
+                                        </div>
+                                        <div>
+                                            <p class="text-xs font-bold text-gray-800 leading-tight">${d.name} <span class="ml-1 bg-yellow-100 text-yellow-800 text-[9px] px-1 rounded-full uppercase tracking-wider">${d.type}</span></p>
+                                            <p class="text-[10px] text-gray-500">${d.distance} • ${d.intent}</p>
+                                        </div>
+                                    </div>
+                                    <span class="text-xs font-bold text-yellow-500"><i class="fa-solid fa-star"></i> ${d.rating}</span>
+                                </div>
+                            `).join('')}
+                            </div>
+                        </div>
                                     <span class="text-xs font-bold text-yellow-500"><i class="fa-solid fa-star"></i> ${d.rating}</span>
                                 </div>
                             `).join('')}
@@ -1009,15 +1030,15 @@ function renderDealerDashboard() {
 
             <!-- KPI Summary Cards -->
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 border-l-4 border-l-blue-500">
+                <div onclick="dealerTabState=\'active\'; render();" class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 border-l-4 border-l-blue-500 cursor-pointer hover:bg-blue-50 transition">
                     <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">${appState.t('active_proc')}</p>
                     <p class="text-2xl font-black text-gray-800">${kpiActive}</p>
                 </div>
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 border-l-4 border-l-orange-400">
+                <div onclick="dealerTabState=\'offers_sent\'; render();" class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 border-l-4 border-l-orange-400 cursor-pointer hover:bg-orange-50 transition">
                     <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">${appState.t('pending_offers')}</p>
                     <p class="text-2xl font-black text-gray-800">${kpiPending}</p>
                 </div>
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 border-l-4 border-l-green-500">
+                <div onclick="dealerTabState=\'completed\'; render();" class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 border-l-4 border-l-green-500 cursor-pointer hover:bg-green-50 transition">
                     <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">${appState.t('deliveries')}</p>
                     <p class="text-2xl font-black text-gray-800">${kpiDeliveries}</p>
                 </div>
