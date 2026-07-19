@@ -362,7 +362,13 @@ function renderWorkflowTracker(req) {
 
 function renderLanding() {
     return `
-        <div class="animate-fade-in flex flex-col justify-center items-center w-full min-h-[calc(100vh-140px)] pb-12">
+        <style>
+            .ticker-wrap { width: 100%; overflow: hidden; background-color: #111827; white-space: nowrap; position: relative; padding: 10px 0; }
+            .ticker { display: inline-flex; white-space: nowrap; animation: ticker 25s linear infinite; }
+            .ticker-item { display: inline-flex; align-items: center; padding: 0 2rem; font-size: 0.85rem; font-weight: 600; color: #e5e7eb; letter-spacing: 0.05em; }
+            @keyframes ticker { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
+        </style>
+        <div class="animate-fade-in flex flex-col justify-center items-center w-full min-h-[calc(100vh-140px)] pb-32">
             
             <!-- Hero Messaging -->
             <div class="text-center mb-8 mt-4">
@@ -372,7 +378,7 @@ function renderLanding() {
             </div>
             
             <!-- Visual Flow diagram -->
-            <div class="flex flex-wrap justify-center items-center gap-1.5 md:gap-3 text-xs md:text-sm font-bold text-gray-600 mb-12 bg-white shadow-premium border-subtle p-2 md:p-3 rounded-full mx-auto">
+            <div class="flex flex-wrap justify-center items-center gap-1.5 md:gap-3 text-xs md:text-sm font-bold text-gray-600 mb-12 bg-white shadow-md border border-gray-100 p-2 md:p-3 rounded-full mx-auto z-10">
                 <span class="text-green-700 px-3 py-1.5 bg-green-50 rounded-full flex items-center"><i class="fa-solid fa-tractor mr-1.5"></i> Farmer</span>
                 <i class="fa-solid fa-arrow-right text-gray-300"></i>
                 <span class="text-primary px-2 uppercase tracking-wider text-[10px] md:text-xs">AgriBridge</span>
@@ -387,41 +393,41 @@ function renderLanding() {
             </div>
             
             <!-- Stakeholder Cards -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 w-full max-w-5xl mx-auto px-4 z-10">
-                <div class="bg-white rounded-2xl shadow-premium border-subtle p-6 flex flex-col items-center text-center cursor-pointer card-lift hover:border-green-300 hover:ring-4 hover:ring-green-50 transition-all group" onclick="appState.navigate('farmerDashboard', 'farmer')">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 w-full max-w-5xl mx-auto px-4 z-20 relative">
+                <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 flex flex-col items-center text-center cursor-pointer hover:-translate-y-1 hover:shadow-xl hover:border-green-300 transition-all group" onclick="appState.navigate('farmerDashboard', 'farmer')">
                     <div class="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center text-3xl mb-4 group-hover:bg-green-100 transition-colors">👨‍🌾</div>
                     <h3 class="font-bold text-gray-800 text-lg">Farmer</h3>
                 </div>
-                <div class="bg-white rounded-2xl shadow-premium border-subtle p-6 flex flex-col items-center text-center cursor-pointer card-lift hover:border-blue-300 hover:ring-4 hover:ring-blue-50 transition-all group" onclick="appState.navigate('dealerDashboard', 'dealer')">
+                <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 flex flex-col items-center text-center cursor-pointer hover:-translate-y-1 hover:shadow-xl hover:border-blue-300 transition-all group" onclick="appState.navigate('dealerDashboard', 'dealer')">
                     <div class="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center text-3xl mb-4 group-hover:bg-blue-100 transition-colors">🏪</div>
                     <h3 class="font-bold text-gray-800 text-lg">Dealer</h3>
                 </div>
-                <div class="bg-white rounded-2xl shadow-premium border-subtle p-6 flex flex-col items-center text-center cursor-pointer card-lift hover:border-orange-300 hover:ring-4 hover:ring-orange-50 transition-all group" onclick="appState.navigate('logisticsDashboard', 'logistics')">
+                <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 flex flex-col items-center text-center cursor-pointer hover:-translate-y-1 hover:shadow-xl hover:border-orange-300 transition-all group" onclick="appState.navigate('logisticsDashboard', 'logistics')">
                     <div class="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center text-3xl mb-4 group-hover:bg-orange-100 transition-colors">🚚</div>
                     <h3 class="font-bold text-gray-800 text-lg">Logistics</h3>
                 </div>
-                <div class="bg-white rounded-2xl shadow-premium border-subtle p-6 flex flex-col items-center text-center cursor-pointer card-lift hover:border-cyan-300 hover:ring-4 hover:ring-cyan-50 transition-all group" onclick="appState.navigate('storageDashboard', 'storage')">
+                <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 flex flex-col items-center text-center cursor-pointer hover:-translate-y-1 hover:shadow-xl hover:border-cyan-300 transition-all group" onclick="appState.navigate('storageDashboard', 'storage')">
                     <div class="w-16 h-16 bg-cyan-50 rounded-full flex items-center justify-center text-3xl mb-4 group-hover:bg-cyan-100 transition-colors">🧊</div>
                     <h3 class="font-bold text-gray-800 text-lg">Cold Storage</h3>
                 </div>
             </div>
 
             <!-- Fixed Ticker -->
-            <div class="fixed bottom-0 left-0 w-full z-40 shadow-2xl">
-                <div class="bg-dark text-[10px] md:text-xs font-bold text-gray-400 px-4 py-1.5 flex items-center border-t border-gray-700">
+            <div class="fixed bottom-0 left-0 w-full z-50 shadow-2xl pointer-events-none">
+                <div class="bg-gray-900 text-[10px] md:text-xs font-bold text-gray-400 px-4 py-1.5 flex items-center border-t border-gray-700">
                     <span class="uppercase tracking-widest flex items-center"><i class="fa-solid fa-chart-line mr-2 text-primary"></i> Live Market Snapshot</span>
                 </div>
-                <div class="ticker-wrap">
+                <div class="ticker-wrap pointer-events-auto">
                     <div class="ticker">
-                        <div class="ticker-item">Tomato ₹16 <span class="text-up ml-1"><i class="fa-solid fa-arrow-up"></i></span></div>
-                        <div class="ticker-item">Onion ₹18 <span class="text-down ml-1"><i class="fa-solid fa-arrow-down"></i></span></div>
-                        <div class="ticker-item">Potato ₹24 <span class="text-up ml-1"><i class="fa-solid fa-arrow-up"></i></span></div>
-                        <div class="ticker-item">Beans ₹36 <span class="text-up ml-1"><i class="fa-solid fa-arrow-up"></i></span></div>
-                        <div class="ticker-item">Carrot ₹28 <span class="text-stable ml-1"><i class="fa-solid fa-minus"></i></span></div>
-                        <div class="ticker-item">Capsicum ₹30 <span class="text-up ml-1"><i class="fa-solid fa-arrow-up"></i></span></div>
-                        <div class="ticker-item">Cauliflower ₹20 <span class="text-down ml-1"><i class="fa-solid fa-arrow-down"></i></span></div>
-                        <div class="ticker-item">Brinjal ₹26 <span class="text-up ml-1"><i class="fa-solid fa-arrow-up"></i></span></div>
-                        <div class="ticker-item">Chilli ₹58 <span class="text-up ml-1"><i class="fa-solid fa-arrow-up"></i></span></div>
+                        <div class="ticker-item">Tomato ₹16 <span class="text-green-400 ml-1"><i class="fa-solid fa-arrow-up"></i></span></div>
+                        <div class="ticker-item">Onion ₹18 <span class="text-red-400 ml-1"><i class="fa-solid fa-arrow-down"></i></span></div>
+                        <div class="ticker-item">Potato ₹24 <span class="text-green-400 ml-1"><i class="fa-solid fa-arrow-up"></i></span></div>
+                        <div class="ticker-item">Beans ₹36 <span class="text-green-400 ml-1"><i class="fa-solid fa-arrow-up"></i></span></div>
+                        <div class="ticker-item">Carrot ₹28 <span class="text-gray-400 ml-1"><i class="fa-solid fa-minus"></i></span></div>
+                        <div class="ticker-item">Capsicum ₹30 <span class="text-green-400 ml-1"><i class="fa-solid fa-arrow-up"></i></span></div>
+                        <div class="ticker-item">Cauliflower ₹20 <span class="text-red-400 ml-1"><i class="fa-solid fa-arrow-down"></i></span></div>
+                        <div class="ticker-item">Brinjal ₹26 <span class="text-green-400 ml-1"><i class="fa-solid fa-arrow-up"></i></span></div>
+                        <div class="ticker-item">Chilli ₹58 <span class="text-green-400 ml-1"><i class="fa-solid fa-arrow-up"></i></span></div>
                     </div>
                 </div>
             </div>
