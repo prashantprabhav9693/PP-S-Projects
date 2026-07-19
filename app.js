@@ -40,7 +40,14 @@ const appState = {
             supermarket: 'Supermarkets', supermarket_desc: 'Direct Procurement',
             ai: 'AI Predictions', ai_desc: 'Price Forecasting',
             blockchain: 'Blockchain', blockchain_desc: 'Crop Traceability',
-            Tomato: 'Tomato', Onion: 'Onion', Potato: 'Potato', Brinjal: 'Brinjal', Chilli: 'Chilli', Carrot: 'Carrot'
+            Tomato: 'Tomato', Onion: 'Onion', Potato: 'Potato', Brinjal: 'Brinjal', Chilli: 'Chilli', Carrot: 'Carrot',
+            dealer_cmd: 'Dealer Command Center', active_proc: 'Active Procurements', pending_offers: 'Pending Offers',
+            deliveries: 'Deliveries Completed', revenue: 'Est. Revenue', incoming: 'Incoming Offers', log_tracker: 'Logistics Tracker',
+            book_truck: 'Book Truck', reserve_space: 'Reserve Space',
+            log_cmd: 'Logistics Command Center', pending_disp: 'Pending Dispatch', in_transit: 'In Transit', deliveries_today: 'Deliveries Today',
+            fleet: 'Fleet Status', dispatch_req: 'Dispatch Requests', active_trans: 'Active Transit', pickup: 'Confirm Pickup', dropoff: 'Confirm Drop-off',
+            storage_cmd: 'Storage Command Center', capacity: 'Capacity', active_storage: 'Active Storage', pending_res: 'Pending Reservations',
+            approved_log: 'Approved Log', approve: 'Approve', reject: 'Reject'
         },
         kn: {
             farmer: 'ರೈತ', dealer: 'ವ್ಯಾಪಾರಿ', logistics: 'ಸಾರಿಗೆ', storage: 'ಶೀತಲ ದಾಸ್ತಾನು',
@@ -51,7 +58,14 @@ const appState = {
             supermarket: 'ಸೂಪರ್ ಮಾರುಕಟ್ಟೆಗಳು', supermarket_desc: 'ನೇರ ಖರೀದಿ',
             ai: 'ಎಐ ಮುನ್ಸೂಚನೆಗಳು', ai_desc: 'ಬೆಲೆ ಮುನ್ಸೂಚನೆ',
             blockchain: 'ಬ್ಲಾಕ್‌ಚೈನ್', blockchain_desc: 'ಬೆಳೆ ಪತ್ತೆಹಚ್ಚುವಿಕೆ',
-            Tomato: 'ಟೊಮೆಟೊ', Onion: 'ಈರುಳ್ಳಿ', Potato: 'ಆಲೂಗಡ್ಡೆ', Brinjal: 'ಬದನೆಕಾಯಿ', Chilli: 'ಮೆಣಸಿನಕಾಯಿ', Carrot: 'ಕ್ಯಾರೆಟ್'
+            Tomato: 'ಟೊಮೆಟೊ', Onion: 'ಈರುಳ್ಳಿ', Potato: 'ಆಲೂಗಡ್ಡೆ', Brinjal: 'ಬದನೆಕಾಯಿ', Chilli: 'ಮೆಣಸಿನಕಾಯಿ', Carrot: 'ಕ್ಯಾರೆಟ್',
+            dealer_cmd: 'ವ್ಯಾಪಾರಿ ನಿಯಂತ್ರಣ ಕೇಂದ್ರ', active_proc: 'ಸಕ್ರಿಯ ಖರೀದಿಗಳು', pending_offers: 'ಬಾಕಿ ಇರುವ ಆಫರ್‌ಗಳು',
+            deliveries: 'ಪೂರ್ಣಗೊಂಡ ವಿತರಣೆಗಳು', revenue: 'ಅಂದಾಜು ಆದಾಯ', incoming: 'ಒಳಬರುವ ಆಫರ್‌ಗಳು', log_tracker: 'ಸಾರಿಗೆ ಟ್ರ್ಯಾಕರ್',
+            book_truck: 'ಟ್ರಕ್ ಬುಕ್ ಮಾಡಿ', reserve_space: 'ಸ್ಥಳ ಕಾಯ್ದಿರಿಸಿ',
+            log_cmd: 'ಸಾರಿಗೆ ನಿಯಂತ್ರಣ ಕೇಂದ್ರ', pending_disp: 'ರವಾನೆಗೆ ಬಾಕಿ', in_transit: 'ಸಾಗಾಣಿಕೆಯಲ್ಲಿ', deliveries_today: 'ಇಂದಿನ ವಿತರಣೆಗಳು',
+            fleet: 'ಫ್ಲೀಟ್ ಸ್ಥಿತಿ', dispatch_req: 'ರವಾನೆ ವಿನಂತಿಗಳು', active_trans: 'ಸಕ್ರಿಯ ಸಾಗಾಣಿಕೆ', pickup: 'ಪಿಕಪ್ ದೃಢೀಕರಿಸಿ', dropoff: 'ಡ್ರಾಪ್-ಆಫ್ ದೃಢೀಕರಿಸಿ',
+            storage_cmd: 'ದಾಸ್ತಾನು ನಿಯಂತ್ರಣ ಕೇಂದ್ರ', capacity: 'ಸಾಮರ್ಥ್ಯ', active_storage: 'ಸಕ್ರಿಯ ದಾಸ್ತಾನು', pending_res: 'ಬಾಕಿ ಕಾಯ್ದಿರಿಸುವಿಕೆ',
+            approved_log: 'ದೃಢೀಕೃತ ದಾಖಲೆ', approve: 'ಅನುಮೋದಿಸಿ', reject: 'ತಿರಸ್ಕರಿಸಿ'
         }
     },
 
@@ -67,12 +81,13 @@ const appState = {
 
     // Mock Nearby Dealers
     nearbyDealers: [
-        { name: 'Ramesh Traders', rating: '4.9', distance: '4 km', intent: 'Buying Tomato' },
-        { name: 'Metro Fresh Procurement', rating: '4.8', distance: '8 km', intent: 'High Volume' },
-        { name: 'City Mandi', rating: '4.5', distance: '12 km', intent: 'Buying Onion' },
-        { name: 'Kisan Aggregators', rating: '4.7', distance: '5 km', intent: 'Buying Potato' },
-        { name: 'Sri Balaji Stores', rating: '4.2', distance: '18 km', intent: 'Mixed Crop' },
-        { name: 'Green Leaf Supply', rating: '4.6', distance: '22 km', intent: 'Buying Chilli' }
+        { name: 'Ramesh Traders', type: 'Dealer', rating: '4.9', distance: '4 km', intent: 'Buying Tomato' },
+        { name: 'Metro Fresh Procurement', type: 'Dealer', rating: '4.8', distance: '8 km', intent: 'High Volume' },
+        { name: 'Sahakari FPO', type: 'FPO', rating: '4.9', distance: '12 km', intent: 'Buying Onion & Potato' },
+        { name: 'Reliance Fresh Procurement', type: 'Supermarket', rating: '4.7', distance: '15 km', intent: 'Premium Quality' },
+        { name: 'Kisan Aggregators', type: 'Dealer', rating: '4.7', distance: '5 km', intent: 'Buying Potato' },
+        { name: 'Sri Balaji Stores', type: 'Dealer', rating: '4.2', distance: '18 km', intent: 'Mixed Crop' },
+        { name: 'Green Leaf Supply', type: 'Dealer', rating: '4.6', distance: '22 km', intent: 'Buying Chilli' }
     ],
 
     // Workflow State (Shared)
@@ -248,6 +263,22 @@ const appState = {
         }
     },
 
+    farmerBookLogistics: async function(id) {
+        const req = this.requests.find(r => r.id === id);
+        if (req) {
+            req.transport_status = 'requested';
+            this.notify('Self-logistics booked successfully.', 'farmer');
+            render();
+            if (supabaseClient) await supabaseClient.from('requests').update({ transport_status: req.transport_status }).eq('id', id);
+            
+            fetch('https://prabhav-prashant.app.n8n.cloud/webhook/logistics-dispatch', {
+                method: 'POST',
+                mode: 'no-cors',
+                body: JSON.stringify(req)
+            }).catch(e => console.log('n8n error:', e));
+        }
+    },
+
     dealerBookStorage: async function(id) {
         const req = this.requests.find(r => r.id === id);
         if (req) {
@@ -390,11 +421,14 @@ function showToast(message, type = 'info') {
 
 
 function renderWorkflowTracker(req) {
+    const isDealerAccepted = req.status === 'dealer_accepted' || req.status === 'completed';
+    const isTransportConfirmed = req.transport_status === 'confirmed' || req.transport_status === 'completed';
+    
     const steps = [
         { key: 'submitted', label: 'Submitted', done: true },
-        { key: 'offered', label: 'Offers Received', done: req.dealer_status.startsWith('offered_') || req.dealer_status === 'accepted' },
-        { key: 'accepted', label: 'Dealer Coordinating', done: req.dealer_status === 'accepted' },
-        { key: 'scheduled', label: 'Pickup Confirmed', done: req.transport_status === 'confirmed' || req.transport_status === 'completed' },
+        { key: 'offered', label: 'Offers Received', done: req.dealer_status.startsWith('offered_') || isDealerAccepted },
+        { key: 'accepted', label: 'Dealer Coordinating', done: isDealerAccepted },
+        { key: 'scheduled', label: 'Pickup Confirmed', done: isTransportConfirmed },
         { key: 'completed', label: 'Completed', done: req.status === 'completed' }
     ];
 
@@ -421,12 +455,6 @@ function renderWorkflowTracker(req) {
 
 function renderLanding() {
     return `
-        <style>
-            .ticker-wrap { width: 100%; overflow: hidden; background-color: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); white-space: nowrap; position: relative; padding: 10px 0; }
-            .ticker { display: inline-flex; white-space: nowrap; animation: ticker 25s linear infinite; }
-            .ticker-item { display: inline-flex; align-items: center; padding: 0 2rem; font-size: 0.85rem; font-weight: 700; color: #374151; letter-spacing: 0.03em; }
-            @keyframes ticker { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
-        </style>
         <div class="animate-fade-in flex flex-col justify-center items-center w-full min-h-[calc(100vh-140px)] pb-32">
             
             <!-- Hero Messaging -->
@@ -502,19 +530,6 @@ function renderLanding() {
                 </div>
             </div>
 
-            <!-- Fixed Ticker -->
-            <div class="fixed bottom-0 left-0 w-full z-50 shadow-2xl pointer-events-none">
-                <div class="bg-gray-50 text-[10px] md:text-xs font-bold text-gray-500 px-4 py-1.5 flex items-center border-t border-gray-200">
-                    <span class="uppercase tracking-widest flex items-center"><i class="fa-solid fa-chart-line mr-2 text-primary"></i> ${appState.t('snapshot')}</span>
-                </div>
-                <div class="ticker-wrap pointer-events-auto shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] border-t border-gray-100">
-                    <div class="ticker">
-                        ${appState.marketPrices.map(m => `
-                            <div class="ticker-item">${appState.t(m.crop)} ${m.price} <span class="${m.trend === 'up' ? 'text-green-600' : m.trend === 'down' ? 'text-red-500' : 'text-gray-400'} ml-1"><i class="fa-solid fa-arrow-${m.trend === 'stable' ? 'right' : m.trend}"></i></span></div>
-                        `).join('')}
-                    </div>
-                </div>
-            </div>
         </div>
     `;
 }
@@ -649,6 +664,7 @@ function renderFarmerDashboard() {
                         </div>
                         <span class="bg-green-50 text-green-700 text-[10px] font-bold px-2 py-1 rounded border border-green-200">Logistics Active</span>
                     </div>
+                    ${req.transport_status === 'none' ? `<div class=\"mb-4 mt-2 bg-orange-50 border border-orange-200 p-3 rounded-lg flex justify-between items-center\"><span class=\"text-xs text-orange-800 font-bold\"><i class=\"fa-solid fa-truck text-orange-600 mr-2\"></i>Dealer has not booked transport.</span><button onclick=\"appState.farmerBookLogistics('${req.id}')\" class=\"bg-orange-500 hover:bg-orange-600 text-white font-bold py-1 px-3 rounded text-xs shadow-sm\">Book Transport</button></div>` : ''}
                     ${renderWorkflowTracker(req)}
                 </div>
             `).join('');
@@ -706,12 +722,14 @@ function renderFarmerDashboard() {
                             <span class="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded font-bold">${appState.nearbyDealers.length} Active</span>
                         </div>
                         <div class="space-y-3">
-                            ${appState.nearbyDealers.slice(0,3).map(d => `
-                                <div class="flex items-center justify-between bg-gray-50 p-2 rounded border border-gray-100">
+                            ${appState.nearbyDealers.slice(0,5).map(d => `
+                                <div class="flex items-center justify-between bg-gray-50 p-2 rounded border border-gray-100 mb-2">
                                     <div class="flex items-center">
-                                        <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-xs mr-3">${d.name.substring(0,2).toUpperCase()}</div>
+                                        <div class="w-8 h-8 rounded-full ${d.type === 'FPO' ? 'bg-purple-100 text-purple-600' : d.type === 'Supermarket' ? 'bg-orange-100 text-orange-600' : 'bg-blue-100 text-blue-600'} flex items-center justify-center font-bold text-xs mr-3">
+                                            ${d.type === 'FPO' ? '<i class="fa-solid fa-users"></i>' : d.type === 'Supermarket' ? '<i class="fa-solid fa-building"></i>' : d.name.substring(0,2).toUpperCase()}
+                                        </div>
                                         <div>
-                                            <p class="text-xs font-bold text-gray-800 leading-tight">${d.name}</p>
+                                            <p class="text-xs font-bold text-gray-800 leading-tight">${d.name} ${d.type === 'FPO' || d.type === 'Supermarket' ? `<span class="ml-1 bg-yellow-100 text-yellow-800 text-[9px] px-1 rounded-full uppercase tracking-wider">${d.type}</span>` : ''}</p>
                                             <p class="text-[10px] text-gray-500">${d.distance} • ${d.intent}</p>
                                         </div>
                                     </div>
@@ -784,6 +802,9 @@ function renderFarmerDashboard() {
                                             <option value="Tomato">Tomato</option>
                                             <option value="Potato">Potato</option>
                                             <option value="Onion">Onion</option>
+                                            <option value="Brinjal">Brinjal</option>
+                                            <option value="Chilli">Chilli</option>
+                                            <option value="Carrot">Carrot</option>
                                             <option value="Other">Other</option>
                                         </select>
                                         <input type="text" id="hpCropOther" class="hidden mt-2 w-full border border-gray-300 rounded-md p-2 bg-gray-50 text-sm focus:border-primary focus:ring-1 focus:ring-primary" placeholder="Enter crop name">
@@ -805,6 +826,9 @@ function renderFarmerDashboard() {
                                         <select id="hpVillage" class="w-full border border-gray-300 rounded-md p-2 bg-gray-50 text-sm focus:border-primary focus:ring-1 focus:ring-primary" required>
                                             <option value="Anekal">Anekal</option>
                                             <option value="Jigani">Jigani</option>
+                                            <option value="Sarjapur">Sarjapur</option>
+                                            <option value="Attibele">Attibele</option>
+                                            <option value="Chandapura">Chandapura</option>
                                         </select></div>
                                     </div>
                                     <button type="button" onclick="handleHarvestPlan(event)" class="w-full bg-dark hover:bg-gray-700 text-white font-medium py-2 rounded-md transition shadow-md text-sm">
@@ -950,7 +974,7 @@ function renderDealerDashboard() {
                         <div class="grid grid-cols-2 gap-3 text-xs border-t border-gray-100 pt-4 mt-auto">
                             <div class="flex flex-col">
                                 <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2"><i class="fa-solid fa-truck text-gray-300 w-4"></i> Transport</span>
-                                ${tStatus === 'none' ? `<button onclick="appState.dealerBookLogistics('${req.id}')" class="bg-orange-50 hover:bg-orange-100 text-orange-600 font-bold py-2 px-2 rounded border border-orange-200 transition text-[10px]">Book Truck</button>` : 
+                                ${tStatus === 'none' ? `<button onclick="appState.dealerBookLogistics('${req.id}')" class="bg-orange-50 hover:bg-orange-100 text-orange-600 font-bold py-2 px-2 rounded border border-orange-200 transition text-[10px]">${appState.t('book_truck')}</button>` : 
                                   tStatus === 'requested' ? `<span class="text-yellow-600 font-medium bg-yellow-50 px-2 py-2 rounded border border-yellow-100 inline-block text-center text-[10px]">Pending</span>` : 
                                   tStatus === 'confirmed' ? `<span class="text-blue-600 font-medium bg-blue-50 px-2 py-2 rounded border border-blue-100 inline-block text-center text-[10px]">On Route</span>` : 
                                   tStatus === 'rejected' ? `<span class="text-red-600 font-medium bg-red-50 px-2 py-2 rounded border border-red-100 inline-block text-center text-[10px]">Rejected - Rebook</span>` :
@@ -959,7 +983,7 @@ function renderDealerDashboard() {
                             <div class="flex flex-col">
                                 <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2"><i class="fa-solid fa-snowflake text-gray-300 w-4"></i> Storage</span>
                                 ${req.needs_storage ? (
-                                    sStatus === 'none' ? `<button onclick="appState.dealerBookStorage('${req.id}')" class="bg-cyan-50 hover:bg-cyan-100 text-cyan-700 font-bold py-2 px-2 rounded border border-cyan-200 transition text-[10px]">Reserve Space</button>` : 
+                                    sStatus === 'none' ? `<button onclick="appState.dealerBookStorage('${req.id}')" class="bg-cyan-50 hover:bg-cyan-100 text-cyan-700 font-bold py-2 px-2 rounded border border-cyan-200 transition text-[10px]">${appState.t('reserve_space')}</button>` : 
                                     sStatus === 'requested' ? `<span class="text-yellow-600 font-medium bg-yellow-50 px-2 py-2 rounded border border-yellow-100 inline-block text-center text-[10px]">Pending</span>` : 
                                     sStatus === 'approved' ? `<span class="text-green-600 font-medium bg-green-50 px-2 py-2 rounded border border-green-100 inline-block text-center text-[10px]">Approved</span>` : 
                                     sStatus === 'rejected' ? `<span class="text-red-600 font-medium bg-red-50 px-2 py-2 rounded border border-red-100 inline-block text-center text-[10px]">Rejected</span>` : 
@@ -978,7 +1002,7 @@ function renderDealerDashboard() {
         <div class="animate-slide-up w-full max-w-7xl mx-auto pb-8">
             <div class="flex justify-between items-end mb-6">
                 <div>
-                    <h2 class="text-xl md:text-2xl font-bold text-gray-800">Dealer Command Center</h2>
+                    <h2 class="text-xl md:text-2xl font-bold text-gray-800">${appState.t('dealer_cmd')}</h2>
                     <p class="text-xs md:text-sm text-gray-500 mt-1">Manage procurement bids and coordinate downstream supply chain.</p>
                 </div>
             </div>
@@ -986,19 +1010,19 @@ function renderDealerDashboard() {
             <!-- KPI Summary Cards -->
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 border-l-4 border-l-blue-500">
-                    <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Active Procurements</p>
+                    <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">${appState.t('active_proc')}</p>
                     <p class="text-2xl font-black text-gray-800">${kpiActive}</p>
                 </div>
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 border-l-4 border-l-orange-400">
-                    <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Pending Offers</p>
+                    <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">${appState.t('pending_offers')}</p>
                     <p class="text-2xl font-black text-gray-800">${kpiPending}</p>
                 </div>
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 border-l-4 border-l-green-500">
-                    <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Deliveries Completed</p>
+                    <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">${appState.t('deliveries')}</p>
                     <p class="text-2xl font-black text-gray-800">${kpiDeliveries}</p>
                 </div>
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 border-l-4 border-l-primary">
-                    <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Est. Revenue</p>
+                    <p class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">${appState.t('revenue')}</p>
                     <p class="text-2xl font-black text-gray-800">₹${kpiRevenue.toLocaleString()}</p>
                 </div>
             </div>
@@ -1201,10 +1225,10 @@ function renderStorageDashboard() {
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 <!-- Left Sidebar: Facility Status -->
                 <div class="lg:col-span-4 space-y-6">
-                    <!-- Capacity -->
+                    <!-- ${appState.t('capacity')} -->
                     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                         <div class="flex justify-between items-end mb-3">
-                            <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider">Facility Capacity</h3>
+                            <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider">Facility ${appState.t('capacity')}</h3>
                             <span class="text-2xl font-bold text-cyan-600">85%</span>
                         </div>
                         <div class="w-full h-3 bg-gray-100 rounded-full overflow-hidden mb-2">
@@ -1260,7 +1284,7 @@ function renderStorageDashboard() {
                     
                     <div class="bg-white rounded-xl shadow-sm border border-gray-200">
                         <div class="p-5 border-b border-gray-100 bg-gray-50 rounded-t-xl flex justify-between items-center">
-                            <h3 class="text-lg font-bold text-gray-800">Pending Reservations</h3>
+                            <h3 class="text-lg font-bold text-gray-800">${appState.t('pending_res')}</h3>
                             <span class="bg-cyan-100 text-cyan-800 text-xs font-bold px-2 py-1 rounded-full">${reservations.length} Pending</span>
                         </div>
                         <div class="p-5">
@@ -1295,8 +1319,8 @@ function renderStorageDashboard() {
                         </div>
                         
                         <div class="flex flex-col gap-2 min-w-[120px] justify-center border-l md:border-l-gray-100 md:pl-4 pt-4 md:pt-0 border-t md:border-t-0 border-t-gray-100">
-                            <button onclick="appState.storageAccept('${req.id}')" class="w-full py-2 bg-cyan-600 hover:bg-cyan-700 text-white font-bold text-sm rounded transition shadow-sm">Approve</button>
-                            <button onclick="appState.storageReject('${req.id}')" class="w-full py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold text-sm rounded transition shadow-sm">Reject</button>
+                            <button onclick="appState.storageAccept('${req.id}')" class="w-full py-2 bg-cyan-600 hover:bg-cyan-700 text-white font-bold text-sm rounded transition shadow-sm">${appState.t('approve')}</button>
+                            <button onclick="appState.storageReject('${req.id}')" class="w-full py-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold text-sm rounded transition shadow-sm">${appState.t('reject')}</button>
                         </div>
                     </div>
                 </div>
@@ -1311,7 +1335,7 @@ function renderStorageDashboard() {
 
                     <div class="bg-white rounded-xl shadow-sm border border-gray-200">
                         <div class="p-5 border-b border-gray-100 bg-gray-50 rounded-t-xl">
-                            <h3 class="text-lg font-bold text-gray-800">Approved Log</h3>
+                            <h3 class="text-lg font-bold text-gray-800">${appState.t('approved_log')}</h3>
                         </div>
                         <div class="p-5">
     `;
@@ -1392,6 +1416,28 @@ function render() {
         case 'storageDashboard': mainContent.innerHTML = renderStorageDashboard(); break;
         default: mainContent.innerHTML = renderLanding();
     }
+
+    const tickerHtml = `
+        <style>
+            .ticker-wrap { width: 100%; overflow: hidden; background-color: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); white-space: nowrap; position: relative; padding: 10px 0; }
+            .ticker { display: inline-flex; white-space: nowrap; animation: ticker 25s linear infinite; }
+            .ticker-item { display: inline-flex; align-items: center; padding: 0 2rem; font-size: 0.85rem; font-weight: 700; color: #374151; letter-spacing: 0.03em; }
+            @keyframes ticker { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
+        </style>
+        <div class="fixed bottom-0 left-0 w-full z-50 shadow-2xl pointer-events-none">
+            <div class="bg-gray-50 text-[10px] md:text-xs font-bold text-gray-500 px-4 py-1.5 flex items-center border-t border-gray-200">
+                <span class="uppercase tracking-widest flex items-center"><i class="fa-solid fa-chart-line mr-2 text-primary"></i> ${appState.t('snapshot')}</span>
+            </div>
+            <div class="ticker-wrap pointer-events-auto shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] border-t border-gray-100">
+                <div class="ticker">
+                    ${appState.marketPrices.map(m => `
+                        <div class="ticker-item">${appState.t(m.crop)} ${m.price} <span class="${m.trend === 'up' ? 'text-green-600' : m.trend === 'down' ? 'text-red-500' : 'text-gray-400'} ml-1"><i class="fa-solid fa-arrow-${m.trend === 'stable' ? 'right' : m.trend}"></i></span></div>
+                    `).join('')}
+                </div>
+            </div>
+        </div>
+    `;
+    mainContent.innerHTML += tickerHtml;
 }
 
 // Run initialization directly since script is at end of body
