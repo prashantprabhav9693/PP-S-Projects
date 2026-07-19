@@ -115,8 +115,8 @@ const appState = {
     },
 
     dealerMakeOffer: async function(id) {
-        const input = document.getElementById('offer-' + id);
-        if (!input || !input.value) return;
+        const input = document.getElementById(`offer-price-${id}`);
+        if (!input || !input.value) return alert('Please enter a price');
         const price = input.value;
         const req = this.requests.find(r => r.id === id);
         if (req) {
@@ -124,6 +124,14 @@ const appState = {
             this.notify('You received a new dealer offer.', 'farmer');
             render();
             if (supabaseClient) await supabaseClient.from('requests').update({ dealer_status: req.dealer_status }).eq('id', id);
+            
+            // Fire Webhook: Dealer makes an offer -> Notifies Farmer
+            fetch('https://prabhav-prashant.app.n8n.cloud/webhook/new-offer', {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({...req, offered_price: price})
+            }).catch(e => console.log('n8n error:', e));
         }
     },
 
