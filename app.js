@@ -27,13 +27,40 @@ try {
 const appState = {
     currentUserRole: null, 
     currentView: 'landing', 
+    lang: 'en', // 'en' or 'kn'
     
-    // Mock Market Data
+    // Translation Dictionary (Only UI labels)
+    translations: {
+        en: {
+            farmer: 'Farmer', dealer: 'Dealer', logistics: 'Logistics', storage: 'Cold Storage',
+            harvest: 'Harvest', market: 'Market', snapshot: 'Live Market Snapshot',
+            alert: 'Alerts', new_offer: 'Incoming Dealer Offers'
+        },
+        kn: {
+            farmer: 'ರೈತ', dealer: 'ವ್ಯಾಪಾರಿ', logistics: 'ಸಾರಿಗೆ', storage: 'ಶೀತಲ ದಾಸ್ತಾನು',
+            harvest: 'ಕೊಯ್ಲು', market: 'ಮಾರುಕಟ್ಟೆ', snapshot: 'ನೇರ ಮಾರುಕಟ್ಟೆ ನೋಟ',
+            alert: 'ಎಚ್ಚರಿಕೆಗಳು', new_offer: 'ಹೊಸ ಆಫರ್‌ಗಳು'
+        }
+    },
+
+    // Mock Market Data (Expanded)
     marketPrices: [
-        { crop: 'Tomato', price: '₹14', unit: 'kg', trend: 'down' },
-        { crop: 'Potato', price: '₹19', unit: 'kg', trend: 'up' },
-        { crop: 'Cauliflower', price: '₹18', unit: 'kg', trend: 'stable' },
-        { crop: 'Leafy', price: '₹12', unit: 'bunch', trend: 'down' }
+        { crop: 'Tomato', price: '₹16', unit: 'kg', trend: 'up' },
+        { crop: 'Onion', price: '₹18', unit: 'kg', trend: 'down' },
+        { crop: 'Potato', price: '₹24', unit: 'kg', trend: 'up' },
+        { crop: 'Brinjal', price: '₹26', unit: 'kg', trend: 'up' },
+        { crop: 'Chilli', price: '₹58', unit: 'kg', trend: 'up' },
+        { crop: 'Carrot', price: '₹28', unit: 'kg', trend: 'stable' }
+    ],
+
+    // Mock Nearby Dealers
+    nearbyDealers: [
+        { name: 'Ramesh Traders', rating: '4.9', distance: '4 km', intent: 'Buying Tomato' },
+        { name: 'Metro Fresh Procurement', rating: '4.8', distance: '8 km', intent: 'High Volume' },
+        { name: 'City Mandi', rating: '4.5', distance: '12 km', intent: 'Buying Onion' },
+        { name: 'Kisan Aggregators', rating: '4.7', distance: '5 km', intent: 'Buying Potato' },
+        { name: 'Sri Balaji Stores', rating: '4.2', distance: '18 km', intent: 'Mixed Crop' },
+        { name: 'Green Leaf Supply', rating: '4.6', distance: '22 km', intent: 'Buying Chilli' }
     ],
 
     // Workflow State (Shared)
@@ -42,6 +69,16 @@ const appState = {
     unreadCount: 0,
 
     // Methods
+    t: function(key) {
+        return this.translations[this.lang][key] || key;
+    },
+    
+    toggleLanguage: function() {
+        this.lang = this.lang === 'en' ? 'kn' : 'en';
+        document.getElementById('lang-label').innerText = this.lang === 'en' ? 'EN / ಕನ್ನಡ' : 'ಕನ್ನಡ / EN';
+        render();
+    },
+
     navigate: function(view, role = null) {
         if (role) this.currentUserRole = role;
         if (view === 'landing') this.currentUserRole = null;
@@ -379,55 +416,80 @@ function renderLanding() {
             
             <!-- Visual Flow diagram -->
             <div class="flex flex-wrap justify-center items-center gap-1.5 md:gap-3 text-xs md:text-sm font-bold text-gray-600 mb-12 bg-white shadow-md border border-gray-100 p-2 md:p-3 rounded-full mx-auto z-10">
-                <span class="text-green-700 px-3 py-1.5 bg-green-50 rounded-full flex items-center"><i class="fa-solid fa-tractor mr-1.5"></i> Farmer</span>
+                <span class="text-green-700 px-3 py-1.5 bg-green-50 rounded-full flex items-center"><i class="fa-solid fa-tractor mr-1.5"></i> ${appState.t('farmer')}</span>
                 <i class="fa-solid fa-arrow-right text-gray-300"></i>
                 <span class="text-primary px-2 uppercase tracking-wider text-[10px] md:text-xs">AgriBridge</span>
                 <i class="fa-solid fa-arrow-right text-gray-300"></i>
-                <span class="text-blue-700 px-3 py-1.5 bg-blue-50 rounded-full flex items-center"><i class="fa-solid fa-store mr-1.5"></i> Dealer</span>
+                <span class="text-blue-700 px-3 py-1.5 bg-blue-50 rounded-full flex items-center"><i class="fa-solid fa-store mr-1.5"></i> ${appState.t('dealer')}</span>
                 <i class="fa-solid fa-arrow-right text-gray-300"></i>
-                <span class="text-orange-600 px-3 py-1.5 bg-orange-50 rounded-full flex items-center"><i class="fa-solid fa-truck mr-1.5"></i> Logistics</span>
+                <span class="text-orange-600 px-3 py-1.5 bg-orange-50 rounded-full flex items-center"><i class="fa-solid fa-truck mr-1.5"></i> ${appState.t('logistics')}</span>
                 <i class="fa-solid fa-arrow-right text-gray-300"></i>
-                <span class="text-cyan-700 px-3 py-1.5 bg-cyan-50 rounded-full flex items-center"><i class="fa-solid fa-snowflake mr-1.5"></i> Cold Storage</span>
+                <span class="text-cyan-700 px-3 py-1.5 bg-cyan-50 rounded-full flex items-center"><i class="fa-solid fa-snowflake mr-1.5"></i> ${appState.t('storage')}</span>
                 <i class="fa-solid fa-arrow-right text-gray-300"></i>
-                <span class="text-gray-700 px-3 flex items-center"><i class="fa-solid fa-shop mr-1.5"></i> Market</span>
+                <span class="text-gray-700 px-3 flex items-center"><i class="fa-solid fa-shop mr-1.5"></i> ${appState.t('market')}</span>
             </div>
             
             <!-- Stakeholder Cards -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 w-full max-w-5xl mx-auto px-4 z-20 relative">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 w-full max-w-5xl mx-auto px-4 z-20 relative mb-12">
                 <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 flex flex-col items-center text-center cursor-pointer hover:-translate-y-1 hover:shadow-xl hover:border-green-300 transition-all group" onclick="appState.navigate('farmerDashboard', 'farmer')">
                     <div class="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center text-3xl mb-4 group-hover:bg-green-100 transition-colors">👨‍🌾</div>
-                    <h3 class="font-bold text-gray-800 text-lg">Farmer</h3>
+                    <h3 class="font-bold text-gray-800 text-lg">${appState.t('farmer')}</h3>
                 </div>
                 <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 flex flex-col items-center text-center cursor-pointer hover:-translate-y-1 hover:shadow-xl hover:border-blue-300 transition-all group" onclick="appState.navigate('dealerDashboard', 'dealer')">
                     <div class="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center text-3xl mb-4 group-hover:bg-blue-100 transition-colors">🏪</div>
-                    <h3 class="font-bold text-gray-800 text-lg">Dealer</h3>
+                    <h3 class="font-bold text-gray-800 text-lg">${appState.t('dealer')}</h3>
                 </div>
                 <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 flex flex-col items-center text-center cursor-pointer hover:-translate-y-1 hover:shadow-xl hover:border-orange-300 transition-all group" onclick="appState.navigate('logisticsDashboard', 'logistics')">
                     <div class="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center text-3xl mb-4 group-hover:bg-orange-100 transition-colors">🚚</div>
-                    <h3 class="font-bold text-gray-800 text-lg">Logistics</h3>
+                    <h3 class="font-bold text-gray-800 text-lg">${appState.t('logistics')}</h3>
                 </div>
                 <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 flex flex-col items-center text-center cursor-pointer hover:-translate-y-1 hover:shadow-xl hover:border-cyan-300 transition-all group" onclick="appState.navigate('storageDashboard', 'storage')">
                     <div class="w-16 h-16 bg-cyan-50 rounded-full flex items-center justify-center text-3xl mb-4 group-hover:bg-cyan-100 transition-colors">🧊</div>
-                    <h3 class="font-bold text-gray-800 text-lg">Cold Storage</h3>
+                    <h3 class="font-bold text-gray-800 text-lg">${appState.t('storage')}</h3>
+                </div>
+            </div>
+
+            <!-- Future Roadmap / Expansion Section -->
+            <div class="w-full max-w-5xl mx-auto px-4 mt-8">
+                <div class="border-t border-gray-200 pt-8 pb-4">
+                    <div class="flex items-center justify-center mb-6">
+                        <span class="bg-purple-100 text-purple-800 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">Future Expansion Roadmap</span>
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 opacity-60">
+                        <div class="bg-gray-50 rounded-xl border border-dashed border-gray-300 p-4 flex flex-col items-center text-center">
+                            <i class="fa-solid fa-users text-gray-400 text-2xl mb-2"></i>
+                            <h4 class="text-sm font-bold text-gray-600">FPOs & Cooperatives</h4>
+                            <p class="text-[10px] text-gray-500 mt-1">Institutional Buyer Network</p>
+                        </div>
+                        <div class="bg-gray-50 rounded-xl border border-dashed border-gray-300 p-4 flex flex-col items-center text-center">
+                            <i class="fa-solid fa-building text-gray-400 text-2xl mb-2"></i>
+                            <h4 class="text-sm font-bold text-gray-600">Supermarkets</h4>
+                            <p class="text-[10px] text-gray-500 mt-1">Direct Procurement</p>
+                        </div>
+                        <div class="bg-gray-50 rounded-xl border border-dashed border-gray-300 p-4 flex flex-col items-center text-center">
+                            <i class="fa-solid fa-robot text-gray-400 text-2xl mb-2"></i>
+                            <h4 class="text-sm font-bold text-gray-600">AI Predictions</h4>
+                            <p class="text-[10px] text-gray-500 mt-1">Price Forecasting</p>
+                        </div>
+                        <div class="bg-gray-50 rounded-xl border border-dashed border-gray-300 p-4 flex flex-col items-center text-center">
+                            <i class="fa-solid fa-link text-gray-400 text-2xl mb-2"></i>
+                            <h4 class="text-sm font-bold text-gray-600">Blockchain</h4>
+                            <p class="text-[10px] text-gray-500 mt-1">Crop Traceability</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <!-- Fixed Ticker -->
             <div class="fixed bottom-0 left-0 w-full z-50 shadow-2xl pointer-events-none">
                 <div class="bg-gray-900 text-[10px] md:text-xs font-bold text-gray-400 px-4 py-1.5 flex items-center border-t border-gray-700">
-                    <span class="uppercase tracking-widest flex items-center"><i class="fa-solid fa-chart-line mr-2 text-primary"></i> Live Market Snapshot</span>
+                    <span class="uppercase tracking-widest flex items-center"><i class="fa-solid fa-chart-line mr-2 text-primary"></i> ${appState.t('snapshot')}</span>
                 </div>
                 <div class="ticker-wrap pointer-events-auto">
                     <div class="ticker">
-                        <div class="ticker-item">Tomato ₹16 <span class="text-green-400 ml-1"><i class="fa-solid fa-arrow-up"></i></span></div>
-                        <div class="ticker-item">Onion ₹18 <span class="text-red-400 ml-1"><i class="fa-solid fa-arrow-down"></i></span></div>
-                        <div class="ticker-item">Potato ₹24 <span class="text-green-400 ml-1"><i class="fa-solid fa-arrow-up"></i></span></div>
-                        <div class="ticker-item">Beans ₹36 <span class="text-green-400 ml-1"><i class="fa-solid fa-arrow-up"></i></span></div>
-                        <div class="ticker-item">Carrot ₹28 <span class="text-gray-400 ml-1"><i class="fa-solid fa-minus"></i></span></div>
-                        <div class="ticker-item">Capsicum ₹30 <span class="text-green-400 ml-1"><i class="fa-solid fa-arrow-up"></i></span></div>
-                        <div class="ticker-item">Cauliflower ₹20 <span class="text-red-400 ml-1"><i class="fa-solid fa-arrow-down"></i></span></div>
-                        <div class="ticker-item">Brinjal ₹26 <span class="text-green-400 ml-1"><i class="fa-solid fa-arrow-up"></i></span></div>
-                        <div class="ticker-item">Chilli ₹58 <span class="text-green-400 ml-1"><i class="fa-solid fa-arrow-up"></i></span></div>
+                        ${appState.marketPrices.map(m => `
+                            <div class="ticker-item">${m.crop} ${m.price} <span class="${m.trend === 'up' ? 'text-green-400' : m.trend === 'down' ? 'text-red-400' : 'text-gray-400'} ml-1"><i class="fa-solid fa-arrow-${m.trend === 'stable' ? 'right' : m.trend}"></i></span></div>
+                        `).join('')}
                     </div>
                 </div>
             </div>
