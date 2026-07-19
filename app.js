@@ -170,15 +170,25 @@ const appState = {
         const req = this.requests.find(r => r.id === id);
         if (req) {
             req.dealer_status = 'offered_' + price;
-            this.notify('You received a new dealer offer.', 'farmer');
-            render();
-            if (supabaseClient) await supabaseClient.from('requests').update({ dealer_status: req.dealer_status }).eq('id', id);
+            req.status = 'dealer_accepted'; // Auto-accept for demo flow
             
-            // Fire Webhook: Dealer makes an offer -> Notifies Farmer
+            this.notify(`Farmer auto-accepted your offer of ₹${price}/kg!`, 'dealer');
+            render();
+            if (supabaseClient) await supabaseClient.from('requests').update({ dealer_status: req.dealer_status, status: req.status }).eq('id', id);
+            
+            // Fire Webhook: Dealer makes an offer
             fetch('https://prabhav-prashant.app.n8n.cloud/webhook/new-offer', {
                 method: 'POST',
                 mode: 'no-cors',
                 body: JSON.stringify({...req, offered_price: price})
+            }).catch(e => console.log('n8n error:', e));
+            
+            // Fire Webhook: Offer Accepted
+            fetch('https://prabhav-prashant.app.n8n.cloud/webhook/offer-accepted', {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(req)
             }).catch(e => console.log('n8n error:', e));
         }
     },
@@ -546,11 +556,20 @@ window.submitDraftRequest = function(btn) {
     btn.disabled = true;
     btn.innerHTML = 'Publishing...';
     setTimeout(() => {
-        appState.addRequest(appState.draftRequest);
+        const draft = appState.draftRequest;
         appState.draftRequest = null;
         currentRecommendation = null;
-        farmerViewState = 'situation'; // Reset view
-        // Render will be called by addRequest
+        farmerViewState = 'situation'; // Reset view first
+        
+        if (document.getElementById('hpCrop')) document.getElementById('hpCrop').value = '';
+        if (document.getElementById('hpQty')) document.getElementById('hpQty').value = '';
+        if (document.getElementById('hpDate')) document.getElementById('hpDate').value = '';
+        if (document.getElementById('hpVillage')) document.getElementById('hpVillage').value = '';
+        
+        btn.disabled = false;
+        btn.innerHTML = 'Publish to Dealers';
+        
+        appState.addRequest(draft); // This calls render() with the correct state
     }, 800);
 };
 
@@ -893,7 +912,7 @@ function renderDealerDashboard() {
                         <div class="flex justify-between items-start mb-4">
                             <div>
                                 <p class="font-bold text-gray-900 text-lg capitalize">${appState.t(req.crop)} <span class="text-gray-500 font-normal text-sm">(${req.quantity})</span></p>
-                                <p class="text-xs text-gray-500 mt-1"><i class="fa-solid fa-location-dot w-3"></i> ${req.village}</p>
+                                <p class="text-xs text-gray-500 mt-1"><i class="fa-solid fa-location-dot w-3"></i> ${req.village} <span class="mx-1">•</span> <i class="fa-solid fa-calendar w-3"></i> <b>Harvest: ${req.harvest_date}</b></p>
                             </div>
                             <div class="text-right">
                                 <p class="text-md font-bold text-gray-800">₹${price}/kg</p>
