@@ -39,7 +39,8 @@ const appState = {
             fpo: 'FPOs & Cooperatives', fpo_desc: 'Institutional Buyer Network',
             supermarket: 'Supermarkets', supermarket_desc: 'Direct Procurement',
             ai: 'AI Predictions', ai_desc: 'Price Forecasting',
-            blockchain: 'Blockchain', blockchain_desc: 'Crop Traceability'
+            blockchain: 'Blockchain', blockchain_desc: 'Crop Traceability',
+            Tomato: 'Tomato', Onion: 'Onion', Potato: 'Potato', Brinjal: 'Brinjal', Chilli: 'Chilli', Carrot: 'Carrot'
         },
         kn: {
             farmer: 'ರೈತ', dealer: 'ವ್ಯಾಪಾರಿ', logistics: 'ಸಾರಿಗೆ', storage: 'ಶೀತಲ ದಾಸ್ತಾನು',
@@ -49,7 +50,8 @@ const appState = {
             fpo: 'ಎಫ್.ಪಿ.ಒ. & ಸಹಕಾರಿ ಸಂಘಗಳು', fpo_desc: 'ಸಾಂಸ್ಥಿಕ ಖರೀದಿದಾರರ ಜಾಲ',
             supermarket: 'ಸೂಪರ್ ಮಾರುಕಟ್ಟೆಗಳು', supermarket_desc: 'ನೇರ ಖರೀದಿ',
             ai: 'ಎಐ ಮುನ್ಸೂಚನೆಗಳು', ai_desc: 'ಬೆಲೆ ಮುನ್ಸೂಚನೆ',
-            blockchain: 'ಬ್ಲಾಕ್‌ಚೈನ್', blockchain_desc: 'ಬೆಳೆ ಪತ್ತೆಹಚ್ಚುವಿಕೆ'
+            blockchain: 'ಬ್ಲಾಕ್‌ಚೈನ್', blockchain_desc: 'ಬೆಳೆ ಪತ್ತೆಹಚ್ಚುವಿಕೆ',
+            Tomato: 'ಟೊಮೆಟೊ', Onion: 'ಈರುಳ್ಳಿ', Potato: 'ಆಲೂಗಡ್ಡೆ', Brinjal: 'ಬದನೆಕಾಯಿ', Chilli: 'ಮೆಣಸಿನಕಾಯಿ', Carrot: 'ಕ್ಯಾರೆಟ್'
         }
     },
 
@@ -410,9 +412,9 @@ function renderWorkflowTracker(req) {
 function renderLanding() {
     return `
         <style>
-            .ticker-wrap { width: 100%; overflow: hidden; background-color: #111827; white-space: nowrap; position: relative; padding: 10px 0; }
+            .ticker-wrap { width: 100%; overflow: hidden; background-color: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); white-space: nowrap; position: relative; padding: 10px 0; }
             .ticker { display: inline-flex; white-space: nowrap; animation: ticker 25s linear infinite; }
-            .ticker-item { display: inline-flex; align-items: center; padding: 0 2rem; font-size: 0.85rem; font-weight: 600; color: #e5e7eb; letter-spacing: 0.05em; }
+            .ticker-item { display: inline-flex; align-items: center; padding: 0 2rem; font-size: 0.85rem; font-weight: 700; color: #374151; letter-spacing: 0.03em; }
             @keyframes ticker { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
         </style>
         <div class="animate-fade-in flex flex-col justify-center items-center w-full min-h-[calc(100vh-140px)] pb-32">
@@ -492,13 +494,13 @@ function renderLanding() {
 
             <!-- Fixed Ticker -->
             <div class="fixed bottom-0 left-0 w-full z-50 shadow-2xl pointer-events-none">
-                <div class="bg-gray-900 text-[10px] md:text-xs font-bold text-gray-400 px-4 py-1.5 flex items-center border-t border-gray-700">
+                <div class="bg-gray-50 text-[10px] md:text-xs font-bold text-gray-500 px-4 py-1.5 flex items-center border-t border-gray-200">
                     <span class="uppercase tracking-widest flex items-center"><i class="fa-solid fa-chart-line mr-2 text-primary"></i> ${appState.t('snapshot')}</span>
                 </div>
-                <div class="ticker-wrap pointer-events-auto">
+                <div class="ticker-wrap pointer-events-auto shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] border-t border-gray-100">
                     <div class="ticker">
                         ${appState.marketPrices.map(m => `
-                            <div class="ticker-item">${m.crop} ${m.price} <span class="${m.trend === 'up' ? 'text-green-400' : m.trend === 'down' ? 'text-red-400' : 'text-gray-400'} ml-1"><i class="fa-solid fa-arrow-${m.trend === 'stable' ? 'right' : m.trend}"></i></span></div>
+                            <div class="ticker-item">${appState.t(m.crop)} ${m.price} <span class="${m.trend === 'up' ? 'text-green-600' : m.trend === 'down' ? 'text-red-500' : 'text-gray-400'} ml-1"><i class="fa-solid fa-arrow-${m.trend === 'stable' ? 'right' : m.trend}"></i></span></div>
                         `).join('')}
                     </div>
                 </div>
