@@ -717,8 +717,11 @@ function renderFarmerDashboard() {
                     </div>
                     
                     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-                        <div class="flex items-center justify-between mb-4">
-                            <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2"><i class="fa-solid fa-store mr-1 text-blue-500"></i> Wholesale Dealers</h3>
+                        <div class="mb-4">
+                            <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 pb-2 border-b border-gray-100 flex justify-between items-center">
+                                <span><i class="fa-solid fa-store mr-1 text-blue-500"></i> Wholesale Dealers</span>
+                                <span class="text-[10px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded font-bold">${appState.nearbyDealers.filter(d => d.type === 'Dealer').length} Active</span>
+                            </h3>
                             <div class="space-y-2 mb-4">
                             ${appState.nearbyDealers.filter(d => d.type === 'Dealer').slice(0,3).map(d => `
                                 <div class="flex items-center justify-between bg-gray-50 p-2 rounded border border-gray-100">
@@ -736,7 +739,10 @@ function renderFarmerDashboard() {
                             `).join('')}
                             </div>
                             
-                            <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2 pt-2 border-t border-gray-100"><i class="fa-solid fa-building mr-1 text-purple-500"></i> Institutional Buyers</h3>
+                            <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 pt-2 pb-2 border-b border-t border-gray-100 flex justify-between items-center">
+                                <span><i class="fa-solid fa-building mr-1 text-purple-500"></i> Institutional Buyers</span>
+                                <span class="text-[10px] bg-purple-50 text-purple-600 px-2 py-0.5 rounded font-bold">${appState.nearbyDealers.filter(d => d.type !== 'Dealer').length} Active</span>
+                            </h3>
                             <div class="space-y-2">
                             ${appState.nearbyDealers.filter(d => d.type !== 'Dealer').slice(0,3).map(d => `
                                 <div class="flex items-center justify-between bg-gray-50 p-2 rounded border border-gray-100">
