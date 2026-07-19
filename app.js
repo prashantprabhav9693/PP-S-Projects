@@ -115,7 +115,7 @@ const appState = {
     },
 
     dealerMakeOffer: async function(id) {
-        const input = document.getElementById(`offer-price-${id}`);
+        const input = document.getElementById(`offer-${id}`);
         if (!input || !input.value) return alert('Please enter a price');
         const price = input.value;
         const req = this.requests.find(r => r.id === id);
