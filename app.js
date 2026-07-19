@@ -512,7 +512,7 @@ function renderLanding() {
 // Helper state for Farmer view toggling
 let farmerViewState = 'situation'; // 'situation' or 'planner'
 let farmerTabState = 'active'; // 'active' or 'history'
-let dealerTabState = 'active'; // 'active' or 'completed'
+let dealerTabState = 'new'; // 'new', 'offers_sent', 'active', 'completed'
 let currentRecommendation = null;
 
 window.handleHarvestPlan = function(event) {
@@ -596,7 +596,7 @@ function renderFarmerDashboard() {
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 mb-4 border-l-4 border-l-primary">
             <div class="flex justify-between items-start">
                 <div>
-                    <h4 class="font-bold text-gray-800 text-lg capitalize">${req.crop} <span class="text-sm font-normal text-gray-500">(${req.quantity})</span></h4>
+                    <h4 class="font-bold text-gray-800 text-lg capitalize">${appState.t(req.crop)} <span class="text-sm font-normal text-gray-500">(${req.quantity})</span></h4>
                     <p class="text-sm text-gray-600 mt-1"><i class="fa-solid fa-location-dot mr-1"></i> ${req.village}</p>
                 </div>
             </div>
@@ -612,7 +612,7 @@ function renderFarmerDashboard() {
         historyHtml = completedReqs.map(req => `
             <div class="bg-white border border-gray-100 rounded-lg p-5 shadow-sm flex justify-between items-center mb-4">
                 <div>
-                    <p class="font-bold text-lg text-gray-800 capitalize">${req.crop} <span class="text-sm text-gray-500 font-normal">(${req.quantity})</span></p>
+                    <p class="font-bold text-lg text-gray-800 capitalize">${appState.t(req.crop)} <span class="text-sm text-gray-500 font-normal">(${req.quantity})</span></p>
                     <p class="text-xs text-gray-500 mt-1"><i class="fa-solid fa-location-dot mr-1"></i> ${req.village}</p>
                 </div>
                 <div class="text-right">
@@ -790,125 +790,150 @@ function renderFarmerDashboard() {
 
 function renderDealerDashboard() {
     const rejectedIds = JSON.parse(localStorage.getItem('dealerRejected') || '[]');
-    const opportunities = appState.requests.filter(r => r.status === 'submitted' && r.dealer_status === 'pending' && !rejectedIds.includes(r.id));
     
-    // Split procurements based on dealerTabState
-    const activeProcurements = appState.requests.filter(r => r.status === 'dealer_accepted');
-    const completedProcurements = appState.requests.filter(r => r.status === 'completed');
-    const procurementsToDisplay = dealerTabState === 'active' ? activeProcurements : completedProcurements;
+    // Categorize
+    const newOpps = appState.requests.filter(r => r.status === 'submitted' && r.dealer_status === 'pending' && !rejectedIds.includes(r.id));
+    const offersSent = appState.requests.filter(r => r.dealer_status.startsWith('offered_'));
+    const activeProc = appState.requests.filter(r => r.status === 'dealer_accepted');
+    const completedProc = appState.requests.filter(r => r.status === 'completed');
     
     // KPI Data Calculations
-    const kpiActive = activeProcurements.length;
-    const kpiPending = appState.requests.filter(r => r.dealer_status.startsWith('offered_')).length;
-    const kpiDeliveries = completedProcurements.length;
-    let kpiRevenue = completedProcurements.reduce((acc, req) => {
+    const kpiActive = activeProc.length;
+    const kpiPending = offersSent.length;
+    const kpiDeliveries = completedProc.length;
+    let kpiRevenue = completedProc.reduce((acc, req) => {
         let p = req.dealer_status.includes('_') ? parseInt(req.dealer_status.split('_')[1]) : 18;
         let q = parseInt(req.quantity) || 100;
         return acc + (p * q);
     }, 0);
     
-    let oppHtml = '';
-    if (opportunities.length === 0) {
-        oppHtml = `<div class="h-full flex flex-col items-center justify-center text-center text-gray-400 py-10"><i class="fa-solid fa-satellite-dish text-4xl mb-3 text-gray-300"></i><p class="text-sm">Scanning market... No new harvests available.</p></div>`;
-    } else {
-        oppHtml = `<div class="space-y-4">`;
-        opportunities.forEach(req => {
-            const distance = Math.floor(Math.random() * 15) + 2; 
-            const estValue = (parseInt(req.quantity) || 100) * 15; 
-            
-            oppHtml += `
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 relative card-lift">
-                    <button onclick="appState.dealerRejectOffer('${req.id}')" class="absolute top-3 right-3 text-gray-300 hover:text-red-500 transition" title="Reject Request"><i class="fa-solid fa-xmark"></i></button>
-                    <div class="flex justify-between items-start mb-3">
-                        <div>
-                            <div class="flex items-center mb-1">
-                                <span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5 animate-pulse"></span>
-                                <span class="text-[10px] font-bold text-green-700 uppercase tracking-wider">Live Match</span>
+    let tabContent = '';
+    
+    if (dealerTabState === 'new') {
+        if (newOpps.length === 0) {
+            tabContent = `<div class="h-full flex flex-col items-center justify-center text-center text-gray-400 py-20"><i class="fa-solid fa-satellite-dish text-4xl mb-3 text-gray-300"></i><p class="text-sm">Scanning market... No new harvests available.</p></div>`;
+        } else {
+            tabContent = `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">`;
+            newOpps.forEach(req => {
+                const distance = Math.floor(Math.random() * 15) + 2; 
+                const estValue = (parseInt(req.quantity) || 100) * 15; 
+                tabContent += `
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 relative card-lift">
+                        <button onclick="appState.dealerRejectOffer('${req.id}')" class="absolute top-3 right-3 text-gray-300 hover:text-red-500 transition" title="Reject Request"><i class="fa-solid fa-xmark"></i></button>
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <div class="flex items-center mb-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5 animate-pulse"></span>
+                                    <span class="text-[10px] font-bold text-green-700 uppercase tracking-wider">Live Match</span>
+                                </div>
+                                <h3 class="text-md font-bold text-gray-900 capitalize">${appState.t(req.crop)} <span class="text-primary ml-1">${req.quantity}</span></h3>
                             </div>
-                            <h3 class="text-md font-bold text-gray-900 capitalize">${req.crop} <span class="text-primary ml-1">${req.quantity}</span></h3>
+                            <div class="text-right mt-1">
+                                <p class="text-sm font-bold text-green-600">₹${estValue.toLocaleString()}</p>
+                                <p class="text-[10px] text-gray-400">Est. Value</p>
+                            </div>
                         </div>
-                        <div class="text-right mt-1">
-                            <p class="text-sm font-bold text-green-600">₹${estValue.toLocaleString()}</p>
-                            <p class="text-[10px] text-gray-400">Est. Value</p>
+                        
+                        <div class="grid grid-cols-2 gap-2 text-xs text-gray-600 mb-4 bg-gray-50 p-2 rounded">
+                            <p><span><i class="fa-solid fa-location-dot w-3 text-gray-400"></i> ${req.village}</span> <span class="text-gray-400 ml-1">~${distance}km</span></p>
+                            <p><span><i class="fa-solid fa-calendar w-3 text-gray-400"></i> Har:</span> <span class="font-bold">${req.harvest_date}</span></p>
+                            <p class="col-span-2 text-[10px] text-gray-500">${req.needs_storage ? '<i class="fa-solid fa-snowflake mr-1 text-cyan-500"></i> Needs Cold Storage' : ''}</p>
+                        </div>
+                        
+                        <div class="border-t border-gray-100 pt-3 flex items-center gap-2">
+                            <input type="number" id="offer-${req.id}" placeholder="Offer Price (₹/kg)" class="w-1/2 border border-gray-300 rounded p-1.5 text-sm font-bold text-gray-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500" required>
+                            <button onclick="appState.dealerMakeOffer('${req.id}')" class="w-1/2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-1.5 rounded transition shadow-sm text-xs">
+                                Make Offer
+                            </button>
                         </div>
                     </div>
-                    
-                    <div class="grid grid-cols-2 gap-2 text-xs text-gray-600 mb-4 bg-gray-50 p-2 rounded">
-                        <p><span><i class="fa-solid fa-location-dot w-3 text-gray-400"></i> ${req.village}</span> <span class="text-gray-400 ml-1">~${distance}km</span></p>
-                        <p><span><i class="fa-solid fa-calendar w-3 text-gray-400"></i> Har:</span> <span class="font-bold">${req.harvest_date}</span></p>
-                        <p class="col-span-2 text-[10px] text-gray-500">${req.needs_storage ? '<i class="fa-solid fa-snowflake mr-1 text-cyan-500"></i> Needs Cold Storage' : ''}</p>
+                `;
+            });
+            tabContent += `</div>`;
+        }
+    } else if (dealerTabState === 'offers_sent') {
+        if (offersSent.length === 0) {
+            tabContent = `<div class="h-full flex flex-col items-center justify-center text-center text-gray-400 py-20"><p class="text-sm">No pending offers sent.</p></div>`;
+        } else {
+            tabContent = `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">`;
+            offersSent.forEach(req => {
+                const price = req.dealer_status.split('_')[1];
+                tabContent += `
+                    <div class="bg-white rounded-lg shadow-sm border border-orange-200 p-4 relative card-lift flex flex-col justify-between">
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <h3 class="text-md font-bold text-gray-900 capitalize">${appState.t(req.crop)} <span class="text-primary ml-1">${req.quantity}</span></h3>
+                                <p class="text-[10px] text-gray-500 mt-0.5"><i class="fa-solid fa-location-dot w-3"></i> ${req.village}</p>
+                            </div>
+                            <div class="text-right">
+                                <span class="bg-orange-100 text-orange-800 text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider animate-pulse">Awaiting Farmer</span>
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded text-center border border-gray-100 mt-auto">
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Your Proposed Offer</p>
+                            <p class="text-xl font-bold text-gray-800">₹${price}/kg</p>
+                        </div>
                     </div>
-                    
-                    <div class="border-t border-gray-100 pt-3 flex items-center gap-2">
-                        <input type="number" id="offer-${req.id}" placeholder="Offer Price (₹/kg)" class="w-1/2 border border-gray-300 rounded p-1.5 text-sm font-bold text-gray-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500" required>
-                        <button onclick="appState.dealerMakeOffer('${req.id}')" class="w-1/2 bg-blue-600 hover:bg-blue-700 text-white font-bold py-1.5 rounded transition shadow-sm text-xs">
-                            Make Offer
-                        </button>
-                    </div>
-                </div>
-            `;
-        });
-        oppHtml += `</div>`;
-    }
-
-    let procHtml = '';
-    if (procurementsToDisplay.length === 0) {
-        procHtml = `<div class="h-full flex items-center justify-center text-center text-gray-400 py-10 text-sm">No ${dealerTabState} procurements found.</div>`;
+                `;
+            });
+            tabContent += `</div>`;
+        }
     } else {
-        procHtml = `<div class="space-y-4">`;
-        procurementsToDisplay.forEach(req => {
-            const tStatus = req.transport_status;
-            const sStatus = req.storage_status;
-            const price = req.dealer_status.includes('_') ? req.dealer_status.split('_')[1] : '18';
-            
-            procHtml += `
-                <div class="bg-white border-l-4 ${req.status === 'completed' ? 'border-l-green-500' : 'border-l-blue-500'} rounded-lg p-4 shadow-sm border border-gray-200">
-                    <div class="flex justify-between items-start mb-3">
-                        <div>
-                            <p class="font-bold text-gray-900 text-md capitalize">${req.crop} <span class="text-gray-500 font-normal text-xs">(${req.quantity})</span></p>
-                            <p class="text-[10px] text-gray-500 mt-0.5"><i class="fa-solid fa-location-dot w-3"></i> ${req.village}</p>
+        const listToDisplay = dealerTabState === 'active' ? activeProc : completedProc;
+        if (listToDisplay.length === 0) {
+            tabContent = `<div class="h-full flex items-center justify-center text-center text-gray-400 py-20 text-sm">No ${dealerTabState === 'active' ? 'active' : 'completed'} procurements found.</div>`;
+        } else {
+            tabContent = `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-5">`;
+            listToDisplay.forEach(req => {
+                const tStatus = req.transport_status;
+                const sStatus = req.storage_status;
+                const price = req.dealer_status.includes('_') ? req.dealer_status.split('_')[1] : '18';
+                tabContent += `
+                    <div class="bg-white border-l-4 ${req.status === 'completed' ? 'border-l-green-500' : 'border-l-blue-500'} rounded-lg p-5 shadow-sm border border-gray-200 flex flex-col justify-between">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <p class="font-bold text-gray-900 text-lg capitalize">${appState.t(req.crop)} <span class="text-gray-500 font-normal text-sm">(${req.quantity})</span></p>
+                                <p class="text-xs text-gray-500 mt-1"><i class="fa-solid fa-location-dot w-3"></i> ${req.village}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-md font-bold text-gray-800">₹${price}/kg</p>
+                                <span class="text-[10px] uppercase font-bold text-gray-400">Winning Bid</span>
+                            </div>
                         </div>
-                        <div class="text-right">
-                            <p class="text-sm font-bold text-gray-800">₹${price}/kg</p>
-                            <span class="text-[10px] uppercase font-bold text-gray-400">Winning Bid</span>
+                        
+                        <div class="grid grid-cols-2 gap-3 text-xs border-t border-gray-100 pt-4 mt-auto">
+                            <div class="flex flex-col">
+                                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2"><i class="fa-solid fa-truck text-gray-300 w-4"></i> Transport</span>
+                                ${tStatus === 'none' ? `<button onclick="appState.dealerBookLogistics('${req.id}')" class="bg-orange-50 hover:bg-orange-100 text-orange-600 font-bold py-2 px-2 rounded border border-orange-200 transition text-[10px]">Book Truck</button>` : 
+                                  tStatus === 'requested' ? `<span class="text-yellow-600 font-medium bg-yellow-50 px-2 py-2 rounded border border-yellow-100 inline-block text-center text-[10px]">Pending</span>` : 
+                                  tStatus === 'confirmed' ? `<span class="text-blue-600 font-medium bg-blue-50 px-2 py-2 rounded border border-blue-100 inline-block text-center text-[10px]">On Route</span>` : 
+                                  tStatus === 'rejected' ? `<span class="text-red-600 font-medium bg-red-50 px-2 py-2 rounded border border-red-100 inline-block text-center text-[10px]">Rejected - Rebook</span>` :
+                                  `<span class="text-green-600 font-medium bg-green-50 px-2 py-2 rounded border border-green-100 inline-block text-center text-[10px]">Delivered</span>`}
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-2"><i class="fa-solid fa-snowflake text-gray-300 w-4"></i> Storage</span>
+                                ${req.needs_storage ? (
+                                    sStatus === 'none' ? `<button onclick="appState.dealerBookStorage('${req.id}')" class="bg-cyan-50 hover:bg-cyan-100 text-cyan-700 font-bold py-2 px-2 rounded border border-cyan-200 transition text-[10px]">Reserve Space</button>` : 
+                                    sStatus === 'requested' ? `<span class="text-yellow-600 font-medium bg-yellow-50 px-2 py-2 rounded border border-yellow-100 inline-block text-center text-[10px]">Pending</span>` : 
+                                    sStatus === 'approved' ? `<span class="text-green-600 font-medium bg-green-50 px-2 py-2 rounded border border-green-100 inline-block text-center text-[10px]">Approved</span>` : 
+                                    sStatus === 'rejected' ? `<span class="text-red-600 font-medium bg-red-50 px-2 py-2 rounded border border-red-100 inline-block text-center text-[10px]">Rejected</span>` : 
+                                    `<span class="text-green-600 font-medium bg-green-50 px-2 py-2 rounded border border-green-100 inline-block text-center text-[10px]">Stored</span>`
+                                ) : `<span class="text-gray-400 italic py-2 px-2 text-[10px] flex items-center justify-center">Not Required</span>`}
+                            </div>
                         </div>
                     </div>
-                    
-                    <div class="grid grid-cols-2 gap-2 text-xs border-t border-gray-50 pt-3">
-                        <div class="flex flex-col">
-                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1"><i class="fa-solid fa-truck w-3"></i> Transport</span>
-                            ${tStatus === 'none' ? `<button onclick="appState.dealerBookLogistics('${req.id}')" class="bg-orange-50 hover:bg-orange-100 text-orange-600 font-bold py-1 px-2 rounded border border-orange-200 transition text-[10px]">Book Truck</button>` : 
-                              tStatus === 'requested' ? `<span class="text-yellow-600 font-medium bg-yellow-50 px-2 py-1 rounded border border-yellow-100 inline-block text-center text-[10px]">Pending</span>` : 
-                              tStatus === 'confirmed' ? `<span class="text-blue-600 font-medium bg-blue-50 px-2 py-1 rounded border border-blue-100 inline-block text-center text-[10px]">On Route</span>` : 
-                              tStatus === 'rejected' ? `<span class="text-red-600 font-medium bg-red-50 px-2 py-1 rounded border border-red-100 inline-block text-center text-[10px]">Rejected - Rebook</span>` :
-                              `<span class="text-green-600 font-medium bg-green-50 px-2 py-1 rounded border border-green-100 inline-block text-center text-[10px]">Delivered</span>`}
-                        </div>
-                        <div class="flex flex-col">
-                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1"><i class="fa-solid fa-snowflake w-3"></i> Storage</span>
-                            ${req.needs_storage ? (
-                                sStatus === 'none' ? `<button onclick="appState.dealerBookStorage('${req.id}')" class="bg-cyan-50 hover:bg-cyan-100 text-cyan-700 font-bold py-1 px-2 rounded border border-cyan-200 transition text-[10px]">Reserve Space</button>` : 
-                                sStatus === 'requested' ? `<span class="text-yellow-600 font-medium bg-yellow-50 px-2 py-1 rounded border border-yellow-100 inline-block text-center text-[10px]">Pending</span>` : 
-                                sStatus === 'approved' ? `<span class="text-green-600 font-medium bg-green-50 px-2 py-1 rounded border border-green-100 inline-block text-center text-[10px]">Approved</span>` : 
-                                sStatus === 'rejected' ? `<span class="text-red-600 font-medium bg-red-50 px-2 py-1 rounded border border-red-100 inline-block text-center text-[10px]">Rejected</span>` : 
-                                `<span class="text-green-600 font-medium bg-green-50 px-2 py-1 rounded border border-green-100 inline-block text-center text-[10px]">Stored</span>`
-                            ) : `<span class="text-gray-400 italic py-1 px-2 text-[10px]">Not Required</span>`}
-                        </div>
-                    </div>
-                </div>
-            `;
-        });
-        procHtml += `</div>`;
+                `;
+            });
+            tabContent += `</div>`;
+        }
     }
 
     return `
-        <div class="animate-slide-up w-full max-w-7xl mx-auto pb-4">
-            <div class="flex justify-between items-end mb-4">
+        <div class="animate-slide-up w-full max-w-7xl mx-auto pb-8">
+            <div class="flex justify-between items-end mb-6">
                 <div>
                     <h2 class="text-xl md:text-2xl font-bold text-gray-800">Dealer Command Center</h2>
                     <p class="text-xs md:text-sm text-gray-500 mt-1">Manage procurement bids and coordinate downstream supply chain.</p>
-                </div>
-                <div class="hidden md:flex space-x-2">
-                    <button class="bg-white border border-gray-200 text-gray-600 px-3 py-1.5 rounded-lg text-sm font-bold shadow-sm hover:bg-gray-50"><i class="fa-solid fa-filter mr-1"></i> Filter</button>
                 </div>
             </div>
 
@@ -932,38 +957,26 @@ function renderDealerDashboard() {
                 </div>
             </div>
 
-            <!-- Main Content: 2 Columns for 13-inch screen -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <!-- Segregated Workflow Interface -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col min-h-[500px]">
+                <div class="flex bg-gray-50 border-b border-gray-200 overflow-x-auto whitespace-nowrap scrollbar-hide">
+                    <button onclick="dealerTabState='new'; render();" class="flex-1 py-4 px-4 text-xs md:text-sm font-bold transition border-b-2 ${dealerTabState === 'new' ? 'border-primary text-primary bg-white shadow-[0_-2px_0_0_inset] shadow-primary' : 'border-transparent text-gray-500 hover:bg-gray-100'} flex items-center justify-center">
+                        <i class="fa-solid fa-satellite-dish mr-2 ${dealerTabState === 'new' ? '' : 'text-gray-400'}"></i> New Opps <span class="ml-2 bg-blue-100 text-blue-800 text-[10px] px-2 py-0.5 rounded-full">${newOpps.length}</span>
+                    </button>
+                    <button onclick="dealerTabState='offers_sent'; render();" class="flex-1 py-4 px-4 text-xs md:text-sm font-bold transition border-b-2 ${dealerTabState === 'offers_sent' ? 'border-primary text-primary bg-white shadow-[0_-2px_0_0_inset] shadow-primary' : 'border-transparent text-gray-500 hover:bg-gray-100'} flex items-center justify-center">
+                        <i class="fa-solid fa-paper-plane mr-2 ${dealerTabState === 'offers_sent' ? '' : 'text-gray-400'}"></i> Offers Sent <span class="ml-2 bg-orange-100 text-orange-800 text-[10px] px-2 py-0.5 rounded-full">${offersSent.length}</span>
+                    </button>
+                    <button onclick="dealerTabState='active'; render();" class="flex-1 py-4 px-4 text-xs md:text-sm font-bold transition border-b-2 ${dealerTabState === 'active' ? 'border-primary text-primary bg-white shadow-[0_-2px_0_0_inset] shadow-primary' : 'border-transparent text-gray-500 hover:bg-gray-100'} flex items-center justify-center">
+                        <i class="fa-solid fa-truck-fast mr-2 ${dealerTabState === 'active' ? '' : 'text-gray-400'}"></i> Active Proc <span class="ml-2 bg-purple-100 text-purple-800 text-[10px] px-2 py-0.5 rounded-full">${activeProc.length}</span>
+                    </button>
+                    <button onclick="dealerTabState='completed'; render();" class="flex-1 py-4 px-4 text-xs md:text-sm font-bold transition border-b-2 ${dealerTabState === 'completed' ? 'border-primary text-primary bg-white shadow-[0_-2px_0_0_inset] shadow-primary' : 'border-transparent text-gray-500 hover:bg-gray-100'} flex items-center justify-center">
+                        <i class="fa-solid fa-check-double mr-2 ${dealerTabState === 'completed' ? '' : 'text-gray-400'}"></i> Completed
+                    </button>
+                </div>
                 
-                <!-- Left Column: Incoming Offers -->
-                <div class="lg:col-span-6">
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col h-[450px]">
-                        <div class="p-3 border-b border-gray-100 bg-gray-50 flex justify-between items-center z-10 shadow-sm">
-                            <h3 class="text-sm font-bold text-gray-800 flex items-center"><i class="fa-solid fa-broadcast-tower text-blue-500 mr-2"></i> Incoming Offers</h3>
-                            <span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded-full">Live</span>
-                        </div>
-                        <div class="p-4 overflow-y-auto flex-grow bg-gray-50/50">
-                            ${oppHtml}
-                        </div>
-                    </div>
+                <div class="p-6 bg-gray-50/30 flex-grow">
+                    ${tabContent}
                 </div>
-
-                <!-- Right Column: Logistics Tracker -->
-                <div class="lg:col-span-6">
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col h-[450px]">
-                        <div class="p-3 border-b border-gray-100 bg-gray-50 flex justify-between items-center z-10 shadow-sm">
-                            <h3 class="text-sm font-bold text-gray-800 flex items-center"><i class="fa-solid fa-box-check text-green-500 mr-2"></i> Logistics Tracker</h3>
-                            <div class="flex space-x-1 bg-white border border-gray-200 p-0.5 rounded-md">
-                                <button onclick="dealerTabState='active'; render();" class="px-2 py-1 text-[10px] font-bold rounded transition ${dealerTabState === 'active' ? 'bg-primary text-white shadow-sm' : 'bg-transparent text-gray-500 hover:bg-gray-100'}">Active</button>
-                                <button onclick="dealerTabState='completed'; render();" class="px-2 py-1 text-[10px] font-bold rounded transition ${dealerTabState === 'completed' ? 'bg-primary text-white shadow-sm' : 'bg-transparent text-gray-500 hover:bg-gray-100'}">Done</button>
-                            </div>
-                        </div>
-                        <div class="p-4 overflow-y-auto flex-grow bg-gray-50/50">
-                            ${procHtml}
-                        </div>
-                    </div>
-                </div>
-
             </div>
         </div>
     `;
@@ -1056,7 +1069,7 @@ function renderLogisticsDashboard() {
                 <div class="border border-gray-200 rounded-lg p-4 mb-3 hover:border-orange-300 transition shadow-sm bg-white">
                     <div class="flex justify-between items-start mb-3 border-b border-gray-100 pb-2">
                         <div>
-                            <p class="font-bold text-gray-900 text-sm capitalize">${req.crop} <span class="text-primary ml-1">${req.quantity}</span></p>
+                            <p class="font-bold text-gray-900 text-sm capitalize">${appState.t(req.crop)} <span class="text-primary ml-1">${req.quantity}</span></p>
                         </div>
                         <span class="text-[10px] font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded border border-orange-200">Requires ${vehicle}</span>
                     </div>
@@ -1103,7 +1116,7 @@ function renderLogisticsDashboard() {
                 <div class="border border-green-200 bg-green-50 rounded-lg p-3 mb-3">
                     <div class="flex justify-between items-center mb-2">
                         <div>
-                            <p class="font-bold text-gray-900 text-sm capitalize">${req.crop} <span class="text-primary">${req.quantity}</span></p>
+                            <p class="font-bold text-gray-900 text-sm capitalize">${appState.t(req.crop)} <span class="text-primary">${req.quantity}</span></p>
                             <p class="text-xs text-gray-600"><i class="fa-solid fa-truck-fast w-3"></i> En route to Dealer/Storage</p>
                         </div>
                         <button onclick="appState.logisticsComplete('${req.id}')" class="bg-green-600 hover:bg-green-700 text-white text-xs font-bold py-1.5 px-3 rounded shadow-sm transition">
@@ -1221,7 +1234,7 @@ function renderStorageDashboard() {
                         <div class="flex-grow">
                             <div class="flex justify-between items-start mb-3 border-b border-gray-100 pb-3">
                                 <div>
-                                    <p class="font-bold text-gray-900 capitalize text-lg leading-none">${req.crop} <span class="text-cyan-600 text-sm ml-1">${req.quantity}</span></p>
+                                    <p class="font-bold text-gray-900 capitalize text-lg leading-none">${appState.t(req.crop)} <span class="text-cyan-600 text-sm ml-1">${req.quantity}</span></p>
                                     <p class="text-xs text-gray-500 mt-1"><i class="fa-solid fa-user text-gray-400 w-3"></i> Ramesh Traders (Dealer)</p>
                                 </div>
                                 <span class="bg-blue-50 text-blue-700 text-[10px] font-bold px-2 py-1 rounded border border-blue-200">New Request</span>
@@ -1276,7 +1289,7 @@ function renderStorageDashboard() {
             html += `
                     <tr class="border-b border-gray-50 last:border-0">
                         <td class="py-3 text-gray-500 font-mono text-xs">#${String(req.id).slice(-4)}</td>
-                        <td class="py-3 font-bold text-gray-800 capitalize">${req.crop} <span class="text-xs font-normal text-gray-500">(${req.quantity})</span></td>
+                        <td class="py-3 font-bold text-gray-800 capitalize">${appState.t(req.crop)} <span class="text-xs font-normal text-gray-500">(${req.quantity})</span></td>
                         <td class="py-3 text-gray-600">Ramesh Traders</td>
                         <td class="py-3"><span class="bg-green-50 text-green-700 px-2 py-1 rounded text-xs font-bold border border-green-100">Approved</span></td>
                     </tr>
