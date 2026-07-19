@@ -362,56 +362,67 @@ function renderWorkflowTracker(req) {
 
 function renderLanding() {
     return `
-        <div class="animate-fade-in max-w-4xl mx-auto">
-            <!-- Story Section -->
-            <div class="text-center mb-12 mt-8">
-                <span class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide">Why AgriBridge?</span>
-                
-                <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8 text-left bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-                    <div>
-                        <h3 class="text-lg font-bold text-red-500 mb-2"><i class="fa-solid fa-triangle-exclamation mr-2"></i>The Problem</h3>
-                        <p class="text-gray-600 text-sm leading-relaxed">Small farmers struggle to decide what to do after harvest because information and coordination are fragmented. Existing infrastructure is disconnected.</p>
-                    </div>
-                    <div>
-                        <h3 class="text-lg font-bold text-primary mb-2"><i class="fa-solid fa-lightbulb mr-2"></i>The Solution</h3>
-                        <p class="text-gray-600 text-sm leading-relaxed">AgriBridge connects Farmers, Dealers, Logistics and Cold Storage on one platform, helping them coordinate post-harvest activities through a single workflow.</p>
-                    </div>
-                </div>
-
-                <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 mt-10 mb-4 tracking-tight">AgriBridge</h1>
-                <p class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto font-medium">A post-harvest coordination platform connecting Farmers, Dealers, Logistics Providers and Cold Storage Operators to simplify post-harvest decisions.</p>
-                
-                <!-- Visual Flow diagram -->
-                <div class="flex flex-wrap justify-center items-center gap-3 text-sm font-semibold text-gray-500 mb-12 bg-gray-50 p-4 rounded-xl border border-gray-200 inline-flex">
-                    <span class="text-green-600"><i class="fa-solid fa-tractor mr-1"></i> Farmer</span>
-                    <i class="fa-solid fa-arrow-right text-gray-300"></i>
-                    <span>Harvest</span>
-                    <i class="fa-solid fa-arrow-right text-gray-300"></i>
-                    <span class="text-primary font-bold">AgriBridge</span>
-                    <i class="fa-solid fa-arrow-right text-gray-300"></i>
-                    <span class="text-blue-600"><i class="fa-solid fa-store mr-1"></i> Dealer</span>
-                    <i class="fa-solid fa-arrow-right text-gray-300"></i>
-                    <span class="text-orange-500"><i class="fa-solid fa-truck mr-1"></i> Transport</span>
-                    <i class="fa-solid fa-arrow-right text-gray-300"></i>
-                    <span class="text-cyan-600"><i class="fa-solid fa-snowflake mr-1"></i> Storage (Optional)</span>
-                    <i class="fa-solid fa-arrow-right text-gray-300"></i>
-                    <span class="text-gray-800"><i class="fa-solid fa-shop mr-1"></i> Market</span>
-                </div>
+        <div class="animate-fade-in flex flex-col justify-center items-center w-full min-h-[calc(100vh-140px)] pb-12">
+            
+            <!-- Hero Messaging -->
+            <div class="text-center mb-8 mt-4">
+                <h1 class="text-4xl md:text-6xl font-extrabold text-gray-900 tracking-tight mb-4">Agri<span class="text-primary">Bridge</span></h1>
+                <p class="text-lg md:text-xl text-gray-700 font-medium mb-3">The Digital Coordination Layer for Post-Harvest Agriculture</p>
+                <p class="text-sm md:text-base text-gray-500 max-w-2xl mx-auto">Connecting Farmers, Dealers, Logistics Providers and Cold Storage Operators through one coordinated workflow.</p>
             </div>
             
-            <div class="text-center mb-6"><h3 class="text-lg font-bold text-gray-400">Enter as</h3></div>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 w-full">
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col items-center text-center cursor-pointer card-lift hover:border-green-300" onclick="appState.navigate('farmerDashboard', 'farmer')">
-                    <span class="text-4xl mb-3">👨‍🌾</span><h3 class="font-bold text-gray-800">Farmer</h3>
+            <!-- Visual Flow diagram -->
+            <div class="flex flex-wrap justify-center items-center gap-1.5 md:gap-3 text-xs md:text-sm font-bold text-gray-600 mb-12 bg-white shadow-premium border-subtle p-2 md:p-3 rounded-full mx-auto">
+                <span class="text-green-700 px-3 py-1.5 bg-green-50 rounded-full flex items-center"><i class="fa-solid fa-tractor mr-1.5"></i> Farmer</span>
+                <i class="fa-solid fa-arrow-right text-gray-300"></i>
+                <span class="text-primary px-2 uppercase tracking-wider text-[10px] md:text-xs">AgriBridge</span>
+                <i class="fa-solid fa-arrow-right text-gray-300"></i>
+                <span class="text-blue-700 px-3 py-1.5 bg-blue-50 rounded-full flex items-center"><i class="fa-solid fa-store mr-1.5"></i> Dealer</span>
+                <i class="fa-solid fa-arrow-right text-gray-300"></i>
+                <span class="text-orange-600 px-3 py-1.5 bg-orange-50 rounded-full flex items-center"><i class="fa-solid fa-truck mr-1.5"></i> Logistics</span>
+                <i class="fa-solid fa-arrow-right text-gray-300"></i>
+                <span class="text-cyan-700 px-3 py-1.5 bg-cyan-50 rounded-full flex items-center"><i class="fa-solid fa-snowflake mr-1.5"></i> Cold Storage</span>
+                <i class="fa-solid fa-arrow-right text-gray-300"></i>
+                <span class="text-gray-700 px-3 flex items-center"><i class="fa-solid fa-shop mr-1.5"></i> Market</span>
+            </div>
+            
+            <!-- Stakeholder Cards -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 w-full max-w-5xl mx-auto px-4 z-10">
+                <div class="bg-white rounded-2xl shadow-premium border-subtle p-6 flex flex-col items-center text-center cursor-pointer card-lift hover:border-green-300 hover:ring-4 hover:ring-green-50 transition-all group" onclick="appState.navigate('farmerDashboard', 'farmer')">
+                    <div class="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center text-3xl mb-4 group-hover:bg-green-100 transition-colors">👨‍🌾</div>
+                    <h3 class="font-bold text-gray-800 text-lg">Farmer</h3>
                 </div>
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col items-center text-center cursor-pointer card-lift hover:border-blue-300" onclick="appState.navigate('dealerDashboard', 'dealer')">
-                    <span class="text-4xl mb-3">🏪</span><h3 class="font-bold text-gray-800">Dealer</h3>
+                <div class="bg-white rounded-2xl shadow-premium border-subtle p-6 flex flex-col items-center text-center cursor-pointer card-lift hover:border-blue-300 hover:ring-4 hover:ring-blue-50 transition-all group" onclick="appState.navigate('dealerDashboard', 'dealer')">
+                    <div class="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center text-3xl mb-4 group-hover:bg-blue-100 transition-colors">🏪</div>
+                    <h3 class="font-bold text-gray-800 text-lg">Dealer</h3>
                 </div>
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col items-center text-center cursor-pointer card-lift hover:border-cyan-300" onclick="appState.navigate('storageDashboard', 'storage')">
-                    <span class="text-4xl mb-3">🧊</span><h3 class="font-bold text-gray-800">Cold Storage</h3>
+                <div class="bg-white rounded-2xl shadow-premium border-subtle p-6 flex flex-col items-center text-center cursor-pointer card-lift hover:border-orange-300 hover:ring-4 hover:ring-orange-50 transition-all group" onclick="appState.navigate('logisticsDashboard', 'logistics')">
+                    <div class="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center text-3xl mb-4 group-hover:bg-orange-100 transition-colors">🚚</div>
+                    <h3 class="font-bold text-gray-800 text-lg">Logistics</h3>
                 </div>
-                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 flex flex-col items-center text-center cursor-pointer card-lift hover:border-orange-300" onclick="appState.navigate('logisticsDashboard', 'logistics')">
-                    <span class="text-4xl mb-3">🚚</span><h3 class="font-bold text-gray-800">Logistics</h3>
+                <div class="bg-white rounded-2xl shadow-premium border-subtle p-6 flex flex-col items-center text-center cursor-pointer card-lift hover:border-cyan-300 hover:ring-4 hover:ring-cyan-50 transition-all group" onclick="appState.navigate('storageDashboard', 'storage')">
+                    <div class="w-16 h-16 bg-cyan-50 rounded-full flex items-center justify-center text-3xl mb-4 group-hover:bg-cyan-100 transition-colors">🧊</div>
+                    <h3 class="font-bold text-gray-800 text-lg">Cold Storage</h3>
+                </div>
+            </div>
+
+            <!-- Fixed Ticker -->
+            <div class="fixed bottom-0 left-0 w-full z-40 shadow-2xl">
+                <div class="bg-dark text-[10px] md:text-xs font-bold text-gray-400 px-4 py-1.5 flex items-center border-t border-gray-700">
+                    <span class="uppercase tracking-widest flex items-center"><i class="fa-solid fa-chart-line mr-2 text-primary"></i> Live Market Snapshot</span>
+                </div>
+                <div class="ticker-wrap">
+                    <div class="ticker">
+                        <div class="ticker-item">Tomato ₹16 <span class="text-up ml-1"><i class="fa-solid fa-arrow-up"></i></span></div>
+                        <div class="ticker-item">Onion ₹18 <span class="text-down ml-1"><i class="fa-solid fa-arrow-down"></i></span></div>
+                        <div class="ticker-item">Potato ₹24 <span class="text-up ml-1"><i class="fa-solid fa-arrow-up"></i></span></div>
+                        <div class="ticker-item">Beans ₹36 <span class="text-up ml-1"><i class="fa-solid fa-arrow-up"></i></span></div>
+                        <div class="ticker-item">Carrot ₹28 <span class="text-stable ml-1"><i class="fa-solid fa-minus"></i></span></div>
+                        <div class="ticker-item">Capsicum ₹30 <span class="text-up ml-1"><i class="fa-solid fa-arrow-up"></i></span></div>
+                        <div class="ticker-item">Cauliflower ₹20 <span class="text-down ml-1"><i class="fa-solid fa-arrow-down"></i></span></div>
+                        <div class="ticker-item">Brinjal ₹26 <span class="text-up ml-1"><i class="fa-solid fa-arrow-up"></i></span></div>
+                        <div class="ticker-item">Chilli ₹58 <span class="text-up ml-1"><i class="fa-solid fa-arrow-up"></i></span></div>
+                    </div>
                 </div>
             </div>
         </div>
