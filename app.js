@@ -521,7 +521,7 @@ function renderLanding() {
 
 // Helper state for Farmer view toggling
 let farmerViewState = 'situation'; // 'situation' or 'planner'
-let farmerTabState = 'active'; // 'active' or 'history'
+let farmerTabState = 'listings'; // 'listings', 'offers', 'active', 'history'
 let dealerTabState = 'new'; // 'new', 'offers_sent', 'active', 'completed'
 let currentRecommendation = null;
 
@@ -575,71 +575,101 @@ window.submitDraftRequest = function(btn) {
 
 
 function renderFarmerDashboard() {
-    const activeReqs = appState.requests.filter(r => r.status !== 'completed').map(req => {
-        let offerHtml = '';
-        if (req.status === 'submitted' && req.dealer_status.startsWith('offered_')) {
-            const price = req.dealer_status.split('_')[1];
-            offerHtml = `
-                <div class="mt-4 bg-blue-50 border border-blue-100 rounded-lg p-4">
-                    <h5 class="text-sm font-bold text-blue-800 uppercase tracking-wider mb-3">Incoming Dealer Offers</h5>
-                    
-                    <div class="bg-white border border-gray-200 rounded p-3 mb-2 flex justify-between items-center shadow-sm">
-                        <div>
-                            <p class="font-bold text-gray-800">Ramesh Traders <span class="text-xs bg-green-100 text-green-800 px-1 rounded ml-1">Verified</span></p>
-                            <p class="text-xs text-gray-500">4 km away • Pickup: Today</p>
-                        </div>
-                        <div class="text-right">
-                            <p class="font-bold text-lg text-primary">₹${price}/kg</p>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-white border border-gray-200 rounded p-3 mb-4 flex justify-between items-center shadow-sm opacity-80">
-                        <div>
-                            <p class="font-bold text-gray-800">City Mandi Buyer</p>
-                            <p class="text-xs text-gray-500">8 km away • Pickup: Tomorrow</p>
-                        </div>
-                        <div class="text-right">
-                            <p class="font-bold text-lg text-gray-600">₹${parseInt(price)-1}/kg</p>
-                        </div>
-                    </div>
-                    
-                    <div class="flex gap-2">
-                        <button onclick="appState.farmerRejectOffer('${req.id}')" class="w-1/3 py-2 bg-white border border-gray-300 text-gray-700 font-bold rounded-lg text-sm hover:bg-gray-50 transition">Reject All</button>
-                        <button onclick="appState.farmerAcceptOffer('${req.id}')" class="w-2/3 py-2 bg-blue-600 text-white font-bold rounded-lg text-sm shadow-sm hover:bg-blue-700 transition">Accept Ramesh Traders</button>
-                    </div>
-                </div>
-            `;
-        }
-
-        return `
-        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 mb-4 border-l-4 border-l-primary">
-            <div class="flex justify-between items-start">
-                <div>
-                    <h4 class="font-bold text-gray-800 text-lg capitalize">${appState.t(req.crop)} <span class="text-sm font-normal text-gray-500">(${req.quantity})</span></h4>
-                    <p class="text-sm text-gray-600 mt-1"><i class="fa-solid fa-location-dot mr-1"></i> ${req.village}</p>
-                </div>
-            </div>
-            ${offerHtml}
-            ${renderWorkflowTracker(req)}
-        </div>
-        `;
-    }).join('');
-
+    // Categorize
+    const myListings = appState.requests.filter(r => r.status === 'submitted' && r.dealer_status === 'pending');
+    const incomingOffers = appState.requests.filter(r => r.status === 'submitted' && r.dealer_status.startsWith('offered_'));
+    const activeLogistics = appState.requests.filter(r => r.status === 'dealer_accepted');
     const completedReqs = appState.requests.filter(r => r.status === 'completed');
-    let historyHtml = '';
-    if (completedReqs.length > 0) {
-        historyHtml = completedReqs.map(req => `
-            <div class="bg-white border border-gray-100 rounded-lg p-5 shadow-sm flex justify-between items-center mb-4">
-                <div>
-                    <p class="font-bold text-lg text-gray-800 capitalize">${appState.t(req.crop)} <span class="text-sm text-gray-500 font-normal">(${req.quantity})</span></p>
-                    <p class="text-xs text-gray-500 mt-1"><i class="fa-solid fa-location-dot mr-1"></i> ${req.village}</p>
+    
+    let tabContent = '';
+    
+    if (farmerTabState === 'listings') {
+        if (myListings.length === 0) {
+            tabContent = '<div class="text-center py-8 text-gray-400 text-sm"><i class="fa-solid fa-seedling text-3xl mb-2 text-gray-300"></i><br>No active listings. Use the planner to publish a harvest.</div>';
+        } else {
+            tabContent = myListings.map(req => `
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 mb-4 border-l-4 border-l-primary">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <h4 class="font-bold text-gray-800 text-lg capitalize">${appState.t(req.crop)} <span class="text-sm font-normal text-gray-500">(${req.quantity})</span></h4>
+                            <p class="text-sm text-gray-600 mt-1"><i class="fa-solid fa-location-dot mr-1"></i> ${req.village}</p>
+                        </div>
+                        <span class="bg-blue-50 text-blue-700 text-[10px] font-bold px-2 py-1 rounded border border-blue-200">Waiting for Offers</span>
+                    </div>
+                    ${renderWorkflowTracker(req)}
                 </div>
-                <div class="text-right">
-                    <span class="bg-green-100 text-green-800 text-xs font-bold px-2 py-1 rounded border border-green-200"><i class="fa-solid fa-check-double mr-1"></i> Completed</span>
-                    <p class="text-[10px] text-gray-400 mt-2">Closed</p>
+            `).join('');
+        }
+    } else if (farmerTabState === 'offers') {
+        if (incomingOffers.length === 0) {
+            tabContent = '<div class="text-center py-8 text-gray-400 text-sm"><i class="fa-solid fa-hand-holding-dollar text-3xl mb-2 text-gray-300"></i><br>No incoming offers right now.</div>';
+        } else {
+            tabContent = incomingOffers.map(req => {
+                const price = req.dealer_status.split('_')[1];
+                return `
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 mb-4 border-l-4 border-l-orange-400">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h4 class="font-bold text-gray-800 text-lg capitalize">${appState.t(req.crop)} <span class="text-sm font-normal text-gray-500">(${req.quantity})</span></h4>
+                            <p class="text-sm text-gray-600 mt-1"><i class="fa-solid fa-location-dot mr-1"></i> ${req.village}</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 bg-orange-50 border border-orange-100 rounded-lg p-4">
+                        <h5 class="text-sm font-bold text-orange-800 uppercase tracking-wider mb-3">Incoming Dealer Offers</h5>
+                        
+                        <div class="bg-white border border-gray-200 rounded p-3 mb-2 flex justify-between items-center shadow-sm">
+                            <div>
+                                <p class="font-bold text-gray-800">Ramesh Traders <span class="text-xs bg-green-100 text-green-800 px-1 rounded ml-1">Verified</span></p>
+                                <p class="text-xs text-gray-500">4 km away • Pickup: Today</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-bold text-lg text-primary">₹${price}/kg</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex gap-2">
+                            <button onclick="appState.farmerRejectOffer('${req.id}')" class="w-1/3 py-2 bg-white border border-gray-300 text-gray-700 font-bold rounded-lg text-sm hover:bg-gray-50 transition">Reject All</button>
+                            <button onclick="appState.farmerAcceptOffer('${req.id}')" class="w-2/3 py-2 bg-blue-600 text-white font-bold rounded-lg text-sm shadow-sm hover:bg-blue-700 transition">Accept Offer</button>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        `).join('');
+                `;
+            }).join('');
+        }
+    } else if (farmerTabState === 'active') {
+        if (activeLogistics.length === 0) {
+            tabContent = '<div class="text-center py-8 text-gray-400 text-sm"><i class="fa-solid fa-truck text-3xl mb-2 text-gray-300"></i><br>No active logistics.</div>';
+        } else {
+            tabContent = activeLogistics.map(req => `
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 mb-4 border-l-4 border-l-green-500">
+                    <div class="flex justify-between items-start mb-3">
+                        <div>
+                            <h4 class="font-bold text-gray-800 text-lg capitalize">${appState.t(req.crop)} <span class="text-sm font-normal text-gray-500">(${req.quantity})</span></h4>
+                            <p class="text-sm text-gray-600 mt-1"><i class="fa-solid fa-location-dot mr-1"></i> ${req.village}</p>
+                        </div>
+                        <span class="bg-green-50 text-green-700 text-[10px] font-bold px-2 py-1 rounded border border-green-200">Logistics Active</span>
+                    </div>
+                    ${renderWorkflowTracker(req)}
+                </div>
+            `).join('');
+        }
+    } else if (farmerTabState === 'history') {
+        if (completedReqs.length === 0) {
+            tabContent = '<div class="text-center py-8 text-gray-400 text-sm"><i class="fa-solid fa-clock-rotate-left text-3xl mb-2 text-gray-300"></i><br>No order history available.</div>';
+        } else {
+            tabContent = completedReqs.map(req => `
+                <div class="bg-white border border-gray-100 rounded-lg p-5 shadow-sm flex justify-between items-center mb-4">
+                    <div>
+                        <p class="font-bold text-lg text-gray-800 capitalize">${appState.t(req.crop)} <span class="text-sm text-gray-500 font-normal">(${req.quantity})</span></p>
+                        <p class="text-xs text-gray-500 mt-1"><i class="fa-solid fa-location-dot mr-1"></i> ${req.village}</p>
+                    </div>
+                    <div class="text-right">
+                        <span class="bg-green-100 text-green-800 text-xs font-bold px-2 py-1 rounded border border-green-200"><i class="fa-solid fa-check-double mr-1"></i> Completed</span>
+                        <p class="text-[10px] text-gray-400 mt-2">Closed</p>
+                    </div>
+                </div>
+            `).join('');
+        }
     }
 
     return `
@@ -785,19 +815,17 @@ function renderFarmerDashboard() {
                         `}
                     `}
 
-                    <!-- 2. & 3. Active Workflow & History -->
+                    <!-- 2. Workflow Tabs -->
                     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                        <div class="flex bg-gray-50 border-b border-gray-200">
-                            <button onclick="farmerTabState='active'; render();" class="flex-1 py-3 text-sm font-bold transition border-b-2 ${farmerTabState === 'active' ? 'border-primary text-primary bg-white' : 'border-transparent text-gray-500 hover:bg-gray-100'}">Active Workflows</button>
-                            <button onclick="farmerTabState='history'; render();" class="flex-1 py-3 text-sm font-bold transition border-b-2 ${farmerTabState === 'history' ? 'border-primary text-primary bg-white' : 'border-transparent text-gray-500 hover:bg-gray-100'}">Order History</button>
+                        <div class="flex bg-gray-50 border-b border-gray-200 overflow-x-auto hide-scrollbar">
+                            <button onclick="farmerTabState='listings'; render();" class="flex-1 min-w-[120px] py-3 text-xs font-bold transition border-b-2 ${farmerTabState === 'listings' ? 'border-primary text-primary bg-white' : 'border-transparent text-gray-500 hover:bg-gray-100'} whitespace-nowrap">My Listings <span class="ml-1 bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded-full text-[10px]">${myListings.length}</span></button>
+                            <button onclick="farmerTabState='offers'; render();" class="flex-1 min-w-[120px] py-3 text-xs font-bold transition border-b-2 ${farmerTabState === 'offers' ? 'border-orange-500 text-orange-600 bg-white' : 'border-transparent text-gray-500 hover:bg-gray-100'} whitespace-nowrap">Offers <span class="ml-1 bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded-full text-[10px]">${incomingOffers.length}</span></button>
+                            <button onclick="farmerTabState='active'; render();" class="flex-1 min-w-[120px] py-3 text-xs font-bold transition border-b-2 ${farmerTabState === 'active' ? 'border-green-500 text-green-600 bg-white' : 'border-transparent text-gray-500 hover:bg-gray-100'} whitespace-nowrap">Active Proc. <span class="ml-1 bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded-full text-[10px]">${activeLogistics.length}</span></button>
+                            <button onclick="farmerTabState='history'; render();" class="flex-1 min-w-[120px] py-3 text-xs font-bold transition border-b-2 ${farmerTabState === 'history' ? 'border-gray-800 text-gray-800 bg-white' : 'border-transparent text-gray-500 hover:bg-gray-100'} whitespace-nowrap">Completed <span class="ml-1 bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded-full text-[10px]">${completedReqs.length}</span></button>
                         </div>
                         
-                        <div class="p-5 max-h-[400px] overflow-y-auto">
-                            ${farmerTabState === 'active' ? `
-                                ${activeReqs.length > 0 ? activeReqs : '<div class="text-center py-8 text-gray-400 text-sm"><i class="fa-solid fa-folder-open text-3xl mb-2 text-gray-300"></i><br>No active workflows found.</div>'}
-                            ` : `
-                                ${completedReqs.length > 0 ? historyHtml : '<div class="text-center py-8 text-gray-400 text-sm"><i class="fa-solid fa-clock-rotate-left text-3xl mb-2 text-gray-300"></i><br>No order history available.</div>'}
-                            `}
+                        <div class="p-5 max-h-[500px] overflow-y-auto bg-gray-50/50">
+                            ${tabContent}
                         </div>
                     </div>
                 </div>
@@ -805,7 +833,6 @@ function renderFarmerDashboard() {
         </div>
     `;
 }
-
 
 function renderDealerDashboard() {
     const rejectedIds = JSON.parse(localStorage.getItem('dealerRejected') || '[]');
