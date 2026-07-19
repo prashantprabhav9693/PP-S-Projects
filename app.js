@@ -34,12 +34,22 @@ const appState = {
         en: {
             farmer: 'Farmer', dealer: 'Dealer', logistics: 'Logistics', storage: 'Cold Storage',
             harvest: 'Harvest', market: 'Market', snapshot: 'Live Market Snapshot',
-            alert: 'Alerts', new_offer: 'Incoming Dealer Offers'
+            alert: 'Alerts', new_offer: 'Incoming Dealer Offers',
+            roadmap: 'Future Expansion Roadmap',
+            fpo: 'FPOs & Cooperatives', fpo_desc: 'Institutional Buyer Network',
+            supermarket: 'Supermarkets', supermarket_desc: 'Direct Procurement',
+            ai: 'AI Predictions', ai_desc: 'Price Forecasting',
+            blockchain: 'Blockchain', blockchain_desc: 'Crop Traceability'
         },
         kn: {
             farmer: 'ರೈತ', dealer: 'ವ್ಯಾಪಾರಿ', logistics: 'ಸಾರಿಗೆ', storage: 'ಶೀತಲ ದಾಸ್ತಾನು',
             harvest: 'ಕೊಯ್ಲು', market: 'ಮಾರುಕಟ್ಟೆ', snapshot: 'ನೇರ ಮಾರುಕಟ್ಟೆ ನೋಟ',
-            alert: 'ಎಚ್ಚರಿಕೆಗಳು', new_offer: 'ಹೊಸ ಆಫರ್‌ಗಳು'
+            alert: 'ಎಚ್ಚರಿಕೆಗಳು', new_offer: 'ಹೊಸ ಆಫರ್‌ಗಳು',
+            roadmap: 'ಭವಿಷ್ಯದ ವಿಸ್ತರಣೆ ಮಾರ್ಗಸೂಚಿ',
+            fpo: 'ಎಫ್.ಪಿ.ಒ. & ಸಹಕಾರಿ ಸಂಘಗಳು', fpo_desc: 'ಸಾಂಸ್ಥಿಕ ಖರೀದಿದಾರರ ಜಾಲ',
+            supermarket: 'ಸೂಪರ್ ಮಾರುಕಟ್ಟೆಗಳು', supermarket_desc: 'ನೇರ ಖರೀದಿ',
+            ai: 'ಎಐ ಮುನ್ಸೂಚನೆಗಳು', ai_desc: 'ಬೆಲೆ ಮುನ್ಸೂಚನೆ',
+            blockchain: 'ಬ್ಲಾಕ್‌ಚೈನ್', blockchain_desc: 'ಬೆಳೆ ಪತ್ತೆಹಚ್ಚುವಿಕೆ'
         }
     },
 
@@ -430,7 +440,7 @@ function renderLanding() {
             </div>
             
             <!-- Stakeholder Cards -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 w-full max-w-5xl mx-auto px-4 z-20 relative mb-12">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 w-full max-w-5xl mx-auto px-4 z-20 relative mb-4">
                 <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 flex flex-col items-center text-center cursor-pointer hover:-translate-y-1 hover:shadow-xl hover:border-green-300 transition-all group" onclick="appState.navigate('farmerDashboard', 'farmer')">
                     <div class="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center text-3xl mb-4 group-hover:bg-green-100 transition-colors">👨‍🌾</div>
                     <h3 class="font-bold text-gray-800 text-lg">${appState.t('farmer')}</h3>
@@ -450,31 +460,31 @@ function renderLanding() {
             </div>
 
             <!-- Future Roadmap / Expansion Section -->
-            <div class="w-full max-w-5xl mx-auto px-4 mt-8">
-                <div class="border-t border-gray-200 pt-8 pb-4">
-                    <div class="flex items-center justify-center mb-6">
-                        <span class="bg-purple-100 text-purple-800 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">Future Expansion Roadmap</span>
+            <div class="w-full max-w-5xl mx-auto px-4 mt-2 mb-8">
+                <div class="border-t border-gray-200 pt-6 pb-2">
+                    <div class="flex items-center justify-center mb-4">
+                        <span class="bg-purple-100 text-purple-800 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">${appState.t('roadmap')}</span>
                     </div>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 opacity-60">
                         <div class="bg-gray-50 rounded-xl border border-dashed border-gray-300 p-4 flex flex-col items-center text-center">
                             <i class="fa-solid fa-users text-gray-400 text-2xl mb-2"></i>
-                            <h4 class="text-sm font-bold text-gray-600">FPOs & Cooperatives</h4>
-                            <p class="text-[10px] text-gray-500 mt-1">Institutional Buyer Network</p>
+                            <h4 class="text-sm font-bold text-gray-600">${appState.t('fpo')}</h4>
+                            <p class="text-[10px] text-gray-500 mt-1">${appState.t('fpo_desc')}</p>
                         </div>
                         <div class="bg-gray-50 rounded-xl border border-dashed border-gray-300 p-4 flex flex-col items-center text-center">
                             <i class="fa-solid fa-building text-gray-400 text-2xl mb-2"></i>
-                            <h4 class="text-sm font-bold text-gray-600">Supermarkets</h4>
-                            <p class="text-[10px] text-gray-500 mt-1">Direct Procurement</p>
+                            <h4 class="text-sm font-bold text-gray-600">${appState.t('supermarket')}</h4>
+                            <p class="text-[10px] text-gray-500 mt-1">${appState.t('supermarket_desc')}</p>
                         </div>
                         <div class="bg-gray-50 rounded-xl border border-dashed border-gray-300 p-4 flex flex-col items-center text-center">
                             <i class="fa-solid fa-robot text-gray-400 text-2xl mb-2"></i>
-                            <h4 class="text-sm font-bold text-gray-600">AI Predictions</h4>
-                            <p class="text-[10px] text-gray-500 mt-1">Price Forecasting</p>
+                            <h4 class="text-sm font-bold text-gray-600">${appState.t('ai')}</h4>
+                            <p class="text-[10px] text-gray-500 mt-1">${appState.t('ai_desc')}</p>
                         </div>
                         <div class="bg-gray-50 rounded-xl border border-dashed border-gray-300 p-4 flex flex-col items-center text-center">
                             <i class="fa-solid fa-link text-gray-400 text-2xl mb-2"></i>
-                            <h4 class="text-sm font-bold text-gray-600">Blockchain</h4>
-                            <p class="text-[10px] text-gray-500 mt-1">Crop Traceability</p>
+                            <h4 class="text-sm font-bold text-gray-600">${appState.t('blockchain')}</h4>
+                            <p class="text-[10px] text-gray-500 mt-1">${appState.t('blockchain_desc')}</p>
                         </div>
                     </div>
                 </div>

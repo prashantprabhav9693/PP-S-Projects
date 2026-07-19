@@ -47,34 +47,36 @@
                         <span class="font-bold text-xl tracking-tight text-dark">AgriBridge</span>
                     </div>
                     
-                    <div id="nav-actions" class="hidden flex items-center space-x-6">
-                        <!-- Reset Demo Button -->
-                        <button onclick="appState.resetDemo()" class="text-[10px] text-gray-300 hover:text-red-500 font-bold px-2 py-1 border border-transparent hover:border-red-200 rounded transition hidden md:block" title="Wipe Database & State for Demo">Reset Demo</button>
-                        
-                        <!-- Language Toggle -->
-                        <button onclick="appState.toggleLanguage()" class="text-xs font-bold text-gray-500 hover:text-primary px-2 py-1 border border-gray-200 rounded-lg transition" title="Toggle Language">
+                    <div class="flex items-center space-x-4">
+                        <!-- Language Toggle (Always visible) -->
+                        <button onclick="appState.toggleLanguage()" class="text-xs font-bold text-gray-500 hover:text-primary px-3 py-1.5 border border-gray-200 rounded-lg transition shadow-sm bg-gray-50" title="Toggle Language">
                             <span id="lang-label">EN / ಕನ್ನಡ</span>
                         </button>
                         
-                        <!-- Notifications Bell -->
-                        <div class="relative cursor-pointer text-gray-500 hover:text-gray-700">
-                            <i class="fa-regular fa-bell text-xl"></i>
-                            <span id="notif-badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full hidden">0</span>
-                        </div>
-                        
-                        <!-- Role Switcher -->
-                        <div class="relative group">
-                            <button class="flex items-center space-x-2 bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1.5 rounded-full text-sm font-medium transition">
-                                <span id="current-role-label">Farmer</span>
-                                <i class="fa-solid fa-chevron-down text-xs text-gray-500"></i>
-                            </button>
-                            <!-- Dropdown -->
-                            <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                                <div class="py-1">
-                                    <button onclick="appState.navigate('farmerDashboard', 'farmer')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-700">👨‍🌾 Farmer</button>
-                                    <button onclick="appState.navigate('dealerDashboard', 'dealer')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700">🏪 Dealer</button>
-                                    <button onclick="appState.navigate('logisticsDashboard', 'logistics')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-700">🚚 Logistics</button>
-                                    <button onclick="appState.navigate('storageDashboard', 'storage')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-700">🧊 Cold Storage</button>
+                        <div id="nav-actions" class="hidden flex items-center space-x-6">
+                            <!-- Reset Demo Button -->
+                            <button onclick="appState.resetDemo()" class="text-[10px] text-gray-300 hover:text-red-500 font-bold px-2 py-1 border border-transparent hover:border-red-200 rounded transition hidden md:block" title="Wipe Database & State for Demo">Reset Demo</button>
+                            
+                            <!-- Notifications Bell -->
+                            <div class="relative cursor-pointer text-gray-500 hover:text-gray-700">
+                                <i class="fa-regular fa-bell text-xl"></i>
+                                <span id="notif-badge" class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full hidden">0</span>
+                            </div>
+                            
+                            <!-- Role Switcher -->
+                            <div class="relative group">
+                                <button class="flex items-center space-x-2 bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1.5 rounded-full text-sm font-medium transition">
+                                    <span id="current-role-label">Farmer</span>
+                                    <i class="fa-solid fa-chevron-down text-xs text-gray-500"></i>
+                                </button>
+                                <!-- Dropdown -->
+                                <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                                    <div class="py-1">
+                                        <button onclick="appState.navigate('farmerDashboard', 'farmer')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-green-50 hover:text-green-700">👨‍🌾 Farmer</button>
+                                        <button onclick="appState.navigate('dealerDashboard', 'dealer')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700">🏪 Dealer</button>
+                                        <button onclick="appState.navigate('logisticsDashboard', 'logistics')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-orange-50 hover:text-orange-700">🚚 Logistics</button>
+                                        <button onclick="appState.navigate('storageDashboard', 'storage')" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-cyan-50 hover:text-cyan-700">🧊 Cold Storage</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
