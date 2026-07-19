@@ -129,7 +129,6 @@ const appState = {
             fetch('https://prabhav-prashant.app.n8n.cloud/webhook/new-offer', {
                 method: 'POST',
                 mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({...req, offered_price: price})
             }).catch(e => console.log('n8n error:', e));
         }
@@ -185,7 +184,6 @@ const appState = {
             fetch('https://prabhav-prashant.app.n8n.cloud/webhook/logistics-dispatch', {
                 method: 'POST',
                 mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(req)
             }).catch(e => console.log('n8n error:', e));
         }
@@ -203,7 +201,6 @@ const appState = {
             fetch('https://prabhav-prashant.app.n8n.cloud/webhook/storage-reservation', {
                 method: 'POST',
                 mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(req)
             }).catch(e => console.log('n8n error:', e));
         }
