@@ -859,16 +859,6 @@ function renderDealerDashboard() {
     const activeProc = appState.requests.filter(r => r.status === 'dealer_accepted');
     const completedProc = appState.requests.filter(r => r.status === 'completed');
     
-    // KPI Data Calculations
-    const kpiActive = activeProc.length;
-    const kpiPending = offersSent.length;
-    const kpiDeliveries = completedProc.length;
-    let kpiRevenue = completedProc.reduce((acc, req) => {
-        let p = req.dealer_status.includes('_') ? parseInt(req.dealer_status.split('_')[1]) : 18;
-        let q = parseInt(req.quantity) || 100;
-        return acc + (p * q);
-    }, 0);
-    
     let tabContent = '';
     
     if (dealerTabState === 'new') {
@@ -877,18 +867,12 @@ function renderDealerDashboard() {
         } else {
             tabContent = `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">`;
             newOpps.forEach(req => {
+                tabContent += `
                     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
-                        <div class="flex justify-between items-start mb-4">
-                            <div>
-                                <h3 class="text-lg font-bold text-gray-900 capitalize">${appState.t(req.crop)} <span class="text-gray-500 font-normal ml-1">(${req.quantity})</span></h3>
-                                <p class="text-sm text-gray-600 mt-1">${req.village}</p>
-                            </div>
-                            <span class="bg-gray-100 text-gray-600 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">Needs Offer</span>
-                        </div>
-                        
-                        <div class="text-sm text-gray-600 mb-5">
-                            <p class="mb-1"><span class="text-gray-400">Harvest Date:</span> <span class="font-bold">${req.harvest_date}</span></p>
-                            ${req.needs_storage ? '<p class="text-xs text-blue-600">Requires Cold Storage</p>' : ''}
+                        <div class="mb-4">
+                            <h3 class="text-lg font-bold text-gray-900 capitalize">${appState.t(req.crop)} <span class="text-gray-500 font-normal ml-1">(${req.quantity})</span></h3>
+                            <p class="text-sm text-gray-600 mt-1">${req.village}</p>
+                            <p class="text-sm text-gray-600 mt-1">Harvest Date: <span class="font-bold">${req.harvest_date}</span></p>
                         </div>
                         
                         <div class="flex items-center gap-3">
@@ -911,17 +895,15 @@ function renderDealerDashboard() {
                 const price = req.dealer_status.split('_')[1];
                 tabContent += `
                     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
-                        <div class="flex justify-between items-start mb-4">
-                            <div>
-                                <h3 class="text-lg font-bold text-gray-900 capitalize">${appState.t(req.crop)} <span class="text-gray-500 font-normal ml-1">(${req.quantity})</span></h3>
-                                <p class="text-sm text-gray-600 mt-1">${req.village}</p>
-                            </div>
+                        <div class="mb-4">
+                            <h3 class="text-lg font-bold text-gray-900 capitalize">${appState.t(req.crop)} <span class="text-gray-500 font-normal ml-1">(${req.quantity})</span></h3>
+                            <p class="text-sm text-gray-600 mt-1">${req.village}</p>
+                            <p class="text-sm text-gray-600 mt-1">Harvest Date: <span class="font-bold">${req.harvest_date}</span></p>
                         </div>
                         
                         <div class="text-sm text-gray-600 border-t border-gray-100 pt-4">
                             <p class="font-bold text-gray-800 text-xl mb-1">₹${price}/kg</p>
-                            <p class="text-gray-500">Offer submitted.</p>
-                            <p class="text-gray-500">Waiting for farmer response.</p>
+                            <p class="text-gray-500">Status: Awaiting Farmer Response</p>
                         </div>
                     </div>
                 `;
@@ -938,40 +920,48 @@ function renderDealerDashboard() {
                 const sStatus = req.storage_status;
                 const price = req.dealer_status.includes('_') ? req.dealer_status.split('_')[1] : '18';
                 
-                let transportHtml = '';
-                if (tStatus === 'none') {
-                    transportHtml = `<div class="flex items-center justify-between"><span class="text-gray-500"><i class="fa-regular fa-circle mr-2 text-gray-300"></i> Book Transport</span> <button onclick="appState.dealerBookLogistics('${req.id}')" class="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded transition shadow-sm font-bold">Book</button></div>`;
-                } else if (tStatus === 'requested') {
-                    transportHtml = `<p class="text-green-600 font-medium"><i class="fa-solid fa-check mr-2"></i> Transport Booked</p>`;
-                } else if (tStatus === 'confirmed') {
-                    transportHtml = `<p class="text-green-600 font-medium"><i class="fa-solid fa-check mr-2"></i> In Transit</p>`;
+                let checklistHtml = `<p class="text-gray-800"><i class="fa-solid fa-check text-green-500 mr-2"></i> Offer Accepted</p>`;
+                
+                // Transport Booked line
+                if (tStatus !== 'none') {
+                    checklistHtml += `<p class="text-gray-800"><i class="fa-solid fa-check text-green-500 mr-2"></i> Transport Booked</p>`;
                 } else {
-                    transportHtml = `<p class="text-green-600 font-medium"><i class="fa-solid fa-check mr-2"></i> Delivered</p>`;
+                    checklistHtml += `<div class="flex items-center justify-between"><span class="text-gray-500"><i class="fa-regular fa-circle mr-2"></i> Transport Booked</span> <button onclick="appState.dealerBookLogistics('${req.id}')" class="text-xs bg-gray-900 hover:bg-black text-white px-3 py-1.5 rounded transition shadow-sm font-bold">Book Transport</button></div>`;
                 }
-
-                let storageHtml = '';
+                
+                // In Transit line
+                if (tStatus === 'confirmed' || tStatus === 'completed') {
+                    checklistHtml += `<p class="text-gray-800"><i class="fa-solid fa-check text-green-500 mr-2"></i> In Transit</p>`;
+                } else {
+                    checklistHtml += `<p class="text-gray-500"><i class="fa-regular fa-circle mr-2"></i> In Transit</p>`;
+                }
+                
+                // Delivered line
+                if (tStatus === 'completed') {
+                    checklistHtml += `<p class="text-gray-800"><i class="fa-solid fa-check text-green-500 mr-2"></i> Delivered</p>`;
+                } else {
+                    checklistHtml += `<p class="text-gray-500"><i class="fa-regular fa-circle mr-2"></i> Delivered</p>`;
+                }
+                
+                // Storage Approved line
                 if (req.needs_storage) {
-                    if (sStatus === 'none') {
-                        storageHtml = `<div class="flex items-center justify-between"><span class="text-gray-500"><i class="fa-regular fa-circle mr-2 text-gray-300"></i> Reserve Storage</span> <button onclick="appState.dealerBookStorage('${req.id}')" class="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded transition shadow-sm font-bold">Reserve</button></div>`;
-                    } else if (sStatus === 'requested') {
-                        storageHtml = `<p class="text-green-600 font-medium"><i class="fa-solid fa-check mr-2"></i> Storage Requested</p>`;
-                    } else if (sStatus === 'approved' || sStatus === 'stored') {
-                        storageHtml = `<p class="text-green-600 font-medium"><i class="fa-solid fa-check mr-2"></i> Storage Approved</p>`;
+                    if (sStatus === 'approved' || sStatus === 'stored') {
+                        checklistHtml += `<p class="text-gray-800"><i class="fa-solid fa-check text-green-500 mr-2"></i> Storage Approved</p>`;
+                    } else if (tStatus !== 'none' && sStatus === 'none') {
+                        checklistHtml += `<div class="flex items-center justify-between"><span class="text-gray-500"><i class="fa-regular fa-circle mr-2"></i> Storage Approved</span> <button onclick="appState.dealerBookStorage('${req.id}')" class="text-xs bg-gray-900 hover:bg-black text-white px-3 py-1.5 rounded transition shadow-sm font-bold">Reserve Storage</button></div>`;
+                    } else {
+                        checklistHtml += `<p class="text-gray-500"><i class="fa-regular fa-circle mr-2"></i> Storage Approved</p>`;
                     }
                 }
 
                 tabContent += `
                     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
-                        <div class="flex justify-between items-start mb-4">
-                            <div>
-                                <h3 class="text-lg font-bold text-gray-900 capitalize">${appState.t(req.crop)} <span class="text-gray-500 font-normal ml-1">(${req.quantity})</span></h3>
-                                <p class="text-sm text-gray-600 mt-1">${req.village}</p>
-                            </div>
+                        <div class="mb-4">
+                            <h3 class="text-lg font-bold text-gray-900 capitalize">${appState.t(req.crop)} <span class="text-gray-500 font-normal ml-1">(${req.quantity})</span></h3>
+                            <p class="text-xl font-bold text-gray-800 mt-2">₹${price}/kg</p>
                         </div>
-                        <div class="text-sm text-gray-800 space-y-3 border-t border-gray-100 pt-4">
-                            <p class="text-green-600 font-medium"><i class="fa-solid fa-check mr-2"></i> Offer Accepted (₹${price}/kg)</p>
-                            ${transportHtml}
-                            ${storageHtml}
+                        <div class="text-sm space-y-3 border-t border-gray-100 pt-4">
+                            ${checklistHtml}
                         </div>
                     </div>
                 `;
