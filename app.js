@@ -185,25 +185,17 @@ const appState = {
         const req = this.requests.find(r => r.id === id);
         if (req) {
             req.dealer_status = 'offered_' + price;
-            req.status = 'dealer_accepted'; // Auto-accept for demo flow
+            // Removed auto-accept hack: req.status remains 'submitted' so the farmer can accept it.
             
-            this.notify(`Farmer auto-accepted your offer of ₹${price}/kg!`, 'dealer');
+            this.notify(`Offer of ₹${price}/kg sent to farmer!`, 'dealer');
             render();
-            if (supabaseClient) await supabaseClient.from('requests').update({ dealer_status: req.dealer_status, status: req.status }).eq('id', id);
+            if (supabaseClient) await supabaseClient.from('requests').update({ dealer_status: req.dealer_status }).eq('id', id);
             
             // Fire Webhook: Dealer makes an offer
             fetch('https://prabhav-prashant.app.n8n.cloud/webhook/new-offer', {
                 method: 'POST',
                 mode: 'no-cors',
                 body: JSON.stringify({...req, offered_price: price})
-            }).catch(e => console.log('n8n error:', e));
-            
-            // Fire Webhook: Offer Accepted
-            fetch('https://prabhav-prashant.app.n8n.cloud/webhook/offer-accepted', {
-                method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(req)
             }).catch(e => console.log('n8n error:', e));
         }
     },
