@@ -83,3 +83,48 @@ input:focus, select:focus, textarea:focus {
     transform: translateY(-4px);
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
 }
+
+/* Ticker Animation */
+.ticker-wrap {
+    width: 100%;
+    overflow: hidden;
+    background-color: #111827;
+    border-top: 1px solid #374151;
+    border-bottom: 1px solid #374151;
+    box-sizing: content-box;
+    white-space: nowrap;
+    position: relative;
+    padding: 8px 0;
+}
+@keyframes ticker {
+    0% { transform: translateX(100vw); }
+    100% { transform: translateX(-100%); }
+}
+.ticker {
+    display: inline-block;
+    white-space: nowrap;
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+    animation-name: ticker;
+    animation-duration: 25s;
+}
+.ticker-item {
+    display: inline-block;
+    padding: 0 2rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #e5e7eb;
+    letter-spacing: 0.05em;
+}
+.text-up { color: #10B981; }
+.text-down { color: #EF4444; }
+.text-stable { color: #9CA3AF; }
+
+/* Premium Aesthetics */
+.shadow-premium {
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+}
+.border-subtle {
+    border: 1px solid rgba(0,0,0,0.04);
+}
+
