@@ -576,7 +576,7 @@ function renderLanding() {
             
             <!-- Hero Messaging -->
             <div class="text-center mb-8 mt-4">
-                <h1 class="text-4xl md:text-6xl font-extrabold text-gray-900 tracking-tight mb-4">Krishi<span class="text-dark">Udaan</span></h1>
+                <h1 class="text-4xl md:text-6xl font-extrabold text-gray-900 tracking-tight mb-4" style="font-family: 'Playfair Display', serif;">Krishi<span class="text-dark">Udaan</span></h1>
                 <p class="text-lg md:text-xl text-gray-800 font-bold mb-3">The Digital Coordination Layer for Post-Harvest Agriculture</p>
                 <p class="text-sm md:text-base text-gray-700 max-w-2xl mx-auto font-medium">Connecting Farmers, Dealers, Logistics Providers and Cold Storage Operators through one coordinated workflow.</p>
             </div>
