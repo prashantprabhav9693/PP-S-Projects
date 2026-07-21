@@ -576,11 +576,11 @@ function renderWorkflowTracker(req) {
 
 function renderLanding() {
     return `
-        <div class="animate-fade-in flex flex-col justify-center items-center w-full pt-1 pb-4">
+        <div class="animate-fade-in flex flex-col justify-start items-center w-full pt-4 pb-4 min-h-[calc(100vh-100px)]">
             
             <!-- Hero Messaging -->
             <div class="text-center mb-3 mt-1">
-                <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight mb-1" style="font-family: 'Playfair Display', serif;">Krishi<span class="text-dark">Udaan</span></h1>
+                <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight mb-1" style="font-family: 'Playfair Display', serif;"><span class="text-dark">Krishi</span>Udaan</h1>
                 <p class="text-base text-gray-800 font-bold mb-1">The Digital Coordination Layer for Post-Harvest Agriculture</p>
                 <p class="text-xs text-gray-700 max-w-2xl mx-auto font-medium">Connecting Farmers, Dealers, Logistics Providers and Cold Storage Operators through one coordinated workflow.</p>
             </div>
@@ -601,33 +601,33 @@ function renderLanding() {
             </div>
             
             <!-- Stakeholder Cards -->
-            <div class="w-full max-w-5xl mx-auto px-4 z-20 relative mb-3">
-                <div class="text-center mb-3">
-                    <h3 class="inline-flex text-sm font-black text-white bg-dark border border-gray-700 px-5 py-2 rounded-full uppercase tracking-widest animate-pulse items-center justify-center gap-2 shadow-lg"><i class="fa-solid fa-hand-pointer text-white"></i> Select Your Role To Enter</h3>
+            <div class="w-full max-w-5xl mx-auto px-4 z-20 relative mb-4">
+                <div class="text-center mb-4">
+                    <h3 class="inline-flex text-sm md:text-base font-extrabold text-green-900 bg-green-100 border border-green-300 px-5 py-2 rounded-full uppercase tracking-widest animate-pulse items-center justify-center gap-2 shadow-sm"><i class="fa-solid fa-hand-pointer text-green-700"></i> Select Your Role To Enter</h3>
                 </div>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
-                <div class="bg-white/90 rounded-2xl shadow-sm border border-gray-200 p-3 flex flex-col items-center text-center cursor-pointer hover:-translate-y-1 hover:shadow-md hover:border-green-300 transition-all group" onclick="appState.navigate('farmerDashboard', 'farmer')">
-                    <div class="w-10 h-10 bg-green-50 rounded-full flex items-center justify-center text-xl mb-2 group-hover:bg-green-100 ring-2 ring-white/50 transition-colors">👨‍🌾</div>
-                    <h3 class="font-bold text-gray-900 text-sm">${appState.t('farmer')}</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+                <div class="bg-white/90 rounded-2xl shadow-sm border border-gray-200 p-5 flex flex-col items-center text-center cursor-pointer hover:-translate-y-1 hover:shadow-md hover:border-green-300 transition-all group" onclick="appState.navigate('farmerDashboard', 'farmer')">
+                    <div class="w-14 h-14 bg-green-50 rounded-full flex items-center justify-center text-3xl mb-3 group-hover:bg-green-100 ring-2 ring-white/50 transition-colors">👨‍🌾</div>
+                    <h3 class="font-bold text-gray-900 text-base">${appState.t('farmer')}</h3>
                 </div>
-                <div class="bg-white/90 rounded-2xl shadow-sm border border-gray-200 p-3 flex flex-col items-center text-center cursor-pointer hover:-translate-y-1 hover:shadow-md hover:border-blue-300 transition-all group" onclick="appState.navigate('dealerDashboard', 'dealer')">
-                    <div class="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center text-xl mb-2 group-hover:bg-blue-100 ring-2 ring-white/50 transition-colors">🏪</div>
-                    <h3 class="font-bold text-gray-900 text-sm">${appState.t('dealer')}</h3>
+                <div class="bg-white/90 rounded-2xl shadow-sm border border-gray-200 p-5 flex flex-col items-center text-center cursor-pointer hover:-translate-y-1 hover:shadow-md hover:border-blue-300 transition-all group" onclick="appState.navigate('dealerDashboard', 'dealer')">
+                    <div class="w-14 h-14 bg-blue-50 rounded-full flex items-center justify-center text-3xl mb-3 group-hover:bg-blue-100 ring-2 ring-white/50 transition-colors">🏪</div>
+                    <h3 class="font-bold text-gray-900 text-base">${appState.t('dealer')}</h3>
                 </div>
-                <div class="bg-white/90 rounded-2xl shadow-sm border border-gray-200 p-3 flex flex-col items-center text-center cursor-pointer hover:-translate-y-1 hover:shadow-md hover:border-orange-300 transition-all group" onclick="appState.navigate('logisticsDashboard', 'logistics')">
-                    <div class="w-10 h-10 bg-orange-50 rounded-full flex items-center justify-center text-xl mb-2 group-hover:bg-orange-100 ring-2 ring-white/50 transition-colors">🚚</div>
-                    <h3 class="font-bold text-gray-900 text-sm">${appState.t('logistics')}</h3>
+                <div class="bg-white/90 rounded-2xl shadow-sm border border-gray-200 p-5 flex flex-col items-center text-center cursor-pointer hover:-translate-y-1 hover:shadow-md hover:border-orange-300 transition-all group" onclick="appState.navigate('logisticsDashboard', 'logistics')">
+                    <div class="w-14 h-14 bg-orange-50 rounded-full flex items-center justify-center text-3xl mb-3 group-hover:bg-orange-100 ring-2 ring-white/50 transition-colors">🚚</div>
+                    <h3 class="font-bold text-gray-900 text-base">${appState.t('logistics')}</h3>
                 </div>
-                <div class="bg-white/90 rounded-2xl shadow-sm border border-gray-200 p-3 flex flex-col items-center text-center cursor-pointer hover:-translate-y-1 hover:shadow-md hover:border-cyan-300 transition-all group" onclick="appState.navigate('storageDashboard', 'storage')">
-                    <div class="w-10 h-10 bg-cyan-50 rounded-full flex items-center justify-center text-xl mb-2 group-hover:bg-cyan-100 ring-2 ring-white/50 transition-colors">🧊</div>
-                    <h3 class="font-bold text-gray-900 text-sm">${appState.t('storage')}</h3>
+                <div class="bg-white/90 rounded-2xl shadow-sm border border-gray-200 p-5 flex flex-col items-center text-center cursor-pointer hover:-translate-y-1 hover:shadow-md hover:border-cyan-300 transition-all group" onclick="appState.navigate('storageDashboard', 'storage')">
+                    <div class="w-14 h-14 bg-cyan-50 rounded-full flex items-center justify-center text-3xl mb-3 group-hover:bg-cyan-100 ring-2 ring-white/50 transition-colors">🧊</div>
+                    <h3 class="font-bold text-gray-900 text-base">${appState.t('storage')}</h3>
                     </div>
             </div>
             </div>
 
             <!-- Future Roadmap / Expansion Section -->
-            <div class="w-full max-w-5xl mx-auto px-4 mt-2 mb-8">
-                <div class="border-t border-gray-200 pt-6 pb-2">
+            <div class="w-full max-w-5xl mx-auto px-4 mt-auto pb-10">
+                <div class="border-t border-gray-200 pt-4 pb-2">
                     <div class="flex items-center justify-center mb-4">
                         <span class="bg-purple-100 text-purple-800 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">${appState.t('roadmap')}</span>
                     </div>
