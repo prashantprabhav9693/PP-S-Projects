@@ -501,29 +501,48 @@ if (supabaseClient) {
 // --- RULES ENGINE (Research Driven) ---
 function getRecommendation(crop) {
     crop = crop.toLowerCase();
-    if (crop.includes('potato') || crop.includes('onion')) {
-        return {
-            status: 'Recommended',
-            icon: '🟢',
-            title: 'Storage Suitable',
-            reasons: ['Long shelf life', 'Storage available', 'Common practice'],
-            insights: 'Interviews show farmers typically wait for better prices since these crops can survive 3-6 months in local cold storage.',
-            needs_storage: true,
-            suggestedSteps: ['Request Dealer Offer', 'Reserve Storage', 'Book Transport'],
-            workflowVisual: 'Farmer ➔ Storage ➔ Dealer ➔ Transport'
-        };
-    } else {
-        return {
-            status: 'Immediate',
-            icon: '🟠',
-            title: 'Immediate Sale Recommended',
-            reasons: ['Highly Perishable', 'Small Quantity', 'Storage usually uneconomical'],
-            insights: 'Field research indicates 40% loss if highly perishable crops aren\'t sold within 24 hours. Local immediate sales are preferred over centralized storage.',
-            needs_storage: false,
-            suggestedSteps: ['Request Dealer', 'Book Pickup'],
-            workflowVisual: 'Dealer ➔ Pickup ➔ Market'
-        };
+    
+    // Default fallback values
+    let data = {
+        currentPrice: 20,
+        expectedPrice7d: 22,
+        expectedPrice30d: 24,
+        confidence: 'Medium',
+        storageCost: 1.5,
+        transportCost: 0.5,
+        needs_storage: true
+    };
+    
+    if (crop.includes('potato')) {
+        data = { currentPrice: 18, expectedPrice7d: 20, expectedPrice30d: 26, confidence: 'High', storageCost: 1.2, transportCost: 0.8, needs_storage: true };
+    } else if (crop.includes('onion')) {
+        data = { currentPrice: 24, expectedPrice7d: 28, expectedPrice30d: 32, confidence: 'High', storageCost: 1.5, transportCost: 0.5, needs_storage: true };
+    } else if (crop.includes('tomato')) {
+        data = { currentPrice: 16, expectedPrice7d: 14, expectedPrice30d: 12, confidence: 'Low', storageCost: 2.0, transportCost: 1.0, needs_storage: false };
     }
+
+    const netBenefit = data.expectedPrice7d - data.currentPrice - data.storageCost - data.transportCost;
+    
+    let recommendation = '';
+    let explanation = '';
+    
+    if (!data.needs_storage || netBenefit <= 0) {
+        recommendation = 'Sell Immediately';
+        explanation = 'The cost of storage and transport outweighs potential price gains in the near term.';
+    } else if (netBenefit > 2) {
+        recommendation = 'Store for 7–14 Days';
+        explanation = 'Expected price increase covers storage and transport costs, yielding a strong net benefit.';
+    } else {
+        recommendation = 'Monitor Market';
+        explanation = 'Margin is thin. Wait for better dealer offers or monitor price trends before committing to storage.';
+    }
+
+    return {
+        ...data,
+        netBenefit: netBenefit,
+        recommendationText: recommendation,
+        explanation: explanation
+    };
 }
 
 // --- UI COMPONENTS ---
@@ -766,7 +785,8 @@ window.handleHarvestPlan = function(event) {
     // Store temporarily in state so submitDraftRequest can access it
     appState.draftRequest = {
         crop, quantity, harvest_date, village,
-        needs_storage: currentRecommendation.needs_storage
+        needs_storage: currentRecommendation.needs_storage,
+        decisionEngine: currentRecommendation // Store the full recommendation object
     };
     
     render();
@@ -988,35 +1008,53 @@ function renderFarmerDashboard() {
                     
                     <!-- 1. Action Required (Planner / Recommendation) -->
                     ${currentRecommendation ? `
-                        <div class="animate-fade-in bg-white rounded-xl shadow-lg border-2 ${currentRecommendation.needs_storage ? 'border-green-400' : 'border-orange-400'} overflow-hidden">
+                        <div class="animate-fade-in bg-white rounded-xl shadow-lg border-2 ${currentRecommendation.needs_storage ? 'border-green-400' : 'border-orange-400'} overflow-hidden mb-6">
                             <div class="p-4 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
                                 <div class="flex items-center">
-                                    <span class="text-2xl mr-2">${currentRecommendation.icon}</span>
-                                    <h2 class="text-md font-bold text-gray-900 leading-tight">${currentRecommendation.title}</h2>
+                                    <span class="text-2xl mr-2">🧠</span>
+                                    <h2 class="text-md font-bold text-gray-900 leading-tight">Harvest Decision Intelligence</h2>
                                 </div>
-                                <span class="bg-green-100 text-green-800 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider animate-pulse">Action Required</span>
+                                <span class="bg-purple-100 text-purple-800 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">AI Powered</span>
                             </div>
                             
-                            <div class="p-5 grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
-                                    <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2">Why this matters</h3>
-                                    <ul class="space-y-1 mb-4">
-                                        ${currentRecommendation.reasons.map(r => `<li class="flex items-center text-xs text-gray-700"><i class="fa-solid fa-check text-green-500 mr-1.5"></i> ${r}</li>`).join('')}
-                                    </ul>
-                                    <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2">Estimated Timeline</h3>
-                                    <p class="text-sm font-bold text-gray-800"><i class="fa-regular fa-clock text-blue-500 mr-1"></i> ${currentRecommendation.status === 'Immediate' ? 'Next 24-48 Hours' : 'Next 7-14 Days'}</p>
+                            <div class="p-5">
+                                <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+                                    <div class="bg-gray-50 p-3 rounded-lg text-center border border-gray-100">
+                                        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Current Price</p>
+                                        <p class="text-sm font-black text-gray-800">₹${currentRecommendation.currentPrice}/kg</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded-lg text-center border border-gray-100">
+                                        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Expected Price</p>
+                                        <p class="text-sm font-black text-blue-600">₹${currentRecommendation.expectedPrice7d}/kg</p>
+                                        <p class="text-[9px] text-gray-400 font-bold mt-1">7-Day Forecast (${currentRecommendation.confidence})</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded-lg text-center border border-gray-100">
+                                        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Storage Cost</p>
+                                        <p class="text-sm font-black text-gray-800">₹${currentRecommendation.storageCost}/kg</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded-lg text-center border border-gray-100">
+                                        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Transport</p>
+                                        <p class="text-sm font-black text-gray-800">₹${currentRecommendation.transportCost}/kg</p>
+                                    </div>
+                                    <div class="${currentRecommendation.netBenefit > 0 ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'} p-3 rounded-lg text-center border">
+                                        <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Net Benefit</p>
+                                        <p class="text-sm font-black ${currentRecommendation.netBenefit > 0 ? 'text-green-600' : 'text-red-600'}">${currentRecommendation.netBenefit > 0 ? '+' : ''}₹${currentRecommendation.netBenefit.toFixed(1)}/kg</p>
+                                    </div>
                                 </div>
-                                <div class="flex flex-col justify-between">
-                                    <div>
-                                        <h3 class="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2">Expected Flow</h3>
-                                        <div class="bg-blue-50 text-blue-800 p-2 rounded text-xs font-bold text-center mb-4">
-                                            ${currentRecommendation.workflowVisual}
+                                
+                                <div class="bg-gray-50 rounded-lg p-4 mb-5 border-l-4 ${currentRecommendation.needs_storage ? 'border-green-500' : 'border-orange-500'}">
+                                    <div class="flex items-start">
+                                        <i class="fa-solid fa-check-circle text-green-500 text-lg mt-0.5 mr-3"></i>
+                                        <div>
+                                            <h3 class="font-bold text-gray-900 mb-1">Recommendation: ${currentRecommendation.recommendationText}</h3>
+                                            <p class="text-xs text-gray-600 font-medium">${currentRecommendation.explanation}</p>
                                         </div>
                                     </div>
-                                    <button onclick="submitDraftRequest(this)" class="w-full bg-primary hover:bg-primaryDark text-white font-bold py-3 rounded-lg transition shadow-md text-sm">
-                                        Publish to Dealers
-                                    </button>
                                 </div>
+                                
+                                <button onclick="submitDraftRequest(this)" class="w-full bg-primary hover:bg-primaryDark text-white font-bold py-3 rounded-lg transition shadow-md text-sm">
+                                    Publish to Dealers
+                                </button>
                             </div>
                         </div>
                     ` : dynamicGuide ? `
