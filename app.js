@@ -586,22 +586,24 @@ function renderLanding() {
             </div>
             
             <!-- Visual Flow diagram -->
-            <div class="flex flex-wrap justify-center items-center gap-1.5 md:gap-3 text-xs font-bold text-gray-600 mb-6 bg-white/80 shadow-sm border border-gray-100 p-2 rounded-full mx-auto z-10">
-                <span class="text-green-700 px-3 py-1.5 bg-green-50 rounded-full flex items-center"><i class="fa-solid fa-tractor mr-1.5"></i> ${appState.t('farmer')}</span>
+            <div class="flex flex-wrap justify-center items-center gap-2 md:gap-4 text-xs font-bold text-gray-500 mb-8 opacity-70 z-10">
+                <span class="flex items-center"><i class="fa-solid fa-tractor mr-1.5 text-gray-400"></i> ${appState.t('farmer')}</span>
                 <i class="fa-solid fa-arrow-right text-gray-300"></i>
-                <span class="text-primary px-2 uppercase tracking-wider text-[10px] md:text-xs">KrishiUdaan</span>
+                <span class="uppercase tracking-wider text-[10px] md:text-xs font-extrabold text-primary">KrishiUdaan</span>
                 <i class="fa-solid fa-arrow-right text-gray-300"></i>
-                <span class="text-blue-700 px-3 py-1.5 bg-blue-50 rounded-full flex items-center"><i class="fa-solid fa-store mr-1.5"></i> ${appState.t('dealer')}</span>
+                <span class="flex items-center"><i class="fa-solid fa-store mr-1.5 text-gray-400"></i> ${appState.t('dealer')}</span>
                 <i class="fa-solid fa-arrow-right text-gray-300"></i>
-                <span class="text-orange-600 px-3 py-1.5 bg-orange-50 rounded-full flex items-center"><i class="fa-solid fa-truck mr-1.5"></i> ${appState.t('logistics')}</span>
+                <span class="flex items-center"><i class="fa-solid fa-truck mr-1.5 text-gray-400"></i> ${appState.t('logistics')}</span>
                 <i class="fa-solid fa-arrow-right text-gray-300"></i>
-                <span class="text-cyan-700 px-3 py-1.5 bg-cyan-50 rounded-full flex items-center"><i class="fa-solid fa-snowflake mr-1.5"></i> ${appState.t('storage')}</span>
+                <span class="flex items-center"><i class="fa-solid fa-snowflake mr-1.5 text-gray-400"></i> ${appState.t('storage')}</span>
                 <i class="fa-solid fa-arrow-right text-gray-300"></i>
-                <span class="text-gray-700 px-3 flex items-center"><i class="fa-solid fa-shop mr-1.5"></i> ${appState.t('market')}</span>
+                <span class="flex items-center"><i class="fa-solid fa-shop mr-1.5 text-gray-400"></i> ${appState.t('market')}</span>
             </div>
             
             <!-- Stakeholder Cards -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 w-full max-w-5xl mx-auto px-4 z-20 relative mb-4">
+            <div class="w-full max-w-5xl mx-auto px-4 z-20 relative mb-4">
+                <h3 class="text-center text-sm font-bold text-gray-600 uppercase tracking-widest mb-4">Select Your Role to Enter</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
                 <div class="bg-white/90 rounded-2xl shadow-sm border border-gray-200 p-4 flex flex-col items-center text-center cursor-pointer hover:-translate-y-1 hover:shadow-md hover:border-green-300 transition-all group" onclick="appState.navigate('farmerDashboard', 'farmer')">
                     <div class="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center text-2xl mb-3 group-hover:bg-green-100 ring-4 ring-white/50 transition-colors">👨‍🌾</div>
                     <h3 class="font-bold text-gray-900 text-base">${appState.t('farmer')}</h3>
@@ -617,7 +619,8 @@ function renderLanding() {
                 <div class="bg-white/90 rounded-2xl shadow-sm border border-gray-200 p-4 flex flex-col items-center text-center cursor-pointer hover:-translate-y-1 hover:shadow-md hover:border-cyan-300 transition-all group" onclick="appState.navigate('storageDashboard', 'storage')">
                     <div class="w-12 h-12 bg-cyan-50 rounded-full flex items-center justify-center text-2xl mb-3 group-hover:bg-cyan-100 ring-4 ring-white/50 transition-colors">🧊</div>
                     <h3 class="font-bold text-gray-900 text-base">${appState.t('storage')}</h3>
-                </div>
+                    </div>
+            </div>
             </div>
 
             <!-- Future Roadmap / Expansion Section -->
