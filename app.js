@@ -1414,8 +1414,8 @@ function renderLogisticsDashboard() {
                             <div class="absolute bottom-1/3 right-1/4 transform -translate-x-1/2 -translate-y-1/2 text-green-600">
                                 <i class="fa-solid fa-location-dot text-2xl drop-shadow-md"></i>
                             </div>
-                            <svg class="absolute inset-0 w-full h-full pointer-events-none" style="z-index: 1;">
-                                <path d="M 25% 25% Q 50% 10% 75% 66%" fill="none" stroke="#f97316" stroke-width="3" stroke-dasharray="6,6" class="opacity-50" />
+                            <svg class="absolute inset-0 w-full h-full pointer-events-none" style="z-index: 1;" viewBox="0 0 400 200">
+                                <path d="M 100 50 Q 200 20 300 130" fill="none" stroke="#f97316" stroke-width="3" stroke-dasharray="6,6" class="opacity-50" />
                             </svg>
                         </div>
                     </div>
