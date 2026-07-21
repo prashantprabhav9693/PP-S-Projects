@@ -576,7 +576,7 @@ function renderWorkflowTracker(req) {
 
 function renderLanding() {
     return `
-        <div class="animate-fade-in flex flex-col justify-center items-center w-full min-h-[calc(100vh-140px)] pb-32">
+        <div class="animate-fade-in flex flex-col justify-center items-center w-full pt-4 pb-12">
             
             <!-- Hero Messaging -->
             <div class="text-center mb-4 mt-2">
@@ -586,23 +586,23 @@ function renderLanding() {
             </div>
             
             <!-- Visual Flow diagram -->
-            <div class="flex flex-wrap justify-center items-center gap-2 md:gap-4 text-xs font-bold text-gray-500 mb-8 opacity-70 z-10">
-                <span class="flex items-center"><i class="fa-solid fa-tractor mr-1.5 text-gray-400"></i> ${appState.t('farmer')}</span>
-                <i class="fa-solid fa-arrow-right text-gray-300"></i>
-                <span class="uppercase tracking-wider text-[10px] md:text-xs font-extrabold text-primary">KrishiUdaan</span>
-                <i class="fa-solid fa-arrow-right text-gray-300"></i>
-                <span class="flex items-center"><i class="fa-solid fa-store mr-1.5 text-gray-400"></i> ${appState.t('dealer')}</span>
-                <i class="fa-solid fa-arrow-right text-gray-300"></i>
-                <span class="flex items-center"><i class="fa-solid fa-truck mr-1.5 text-gray-400"></i> ${appState.t('logistics')}</span>
-                <i class="fa-solid fa-arrow-right text-gray-300"></i>
-                <span class="flex items-center"><i class="fa-solid fa-snowflake mr-1.5 text-gray-400"></i> ${appState.t('storage')}</span>
-                <i class="fa-solid fa-arrow-right text-gray-300"></i>
-                <span class="flex items-center"><i class="fa-solid fa-shop mr-1.5 text-gray-400"></i> ${appState.t('market')}</span>
+            <div class="flex flex-wrap justify-center items-center gap-2 md:gap-4 text-[10px] md:text-xs font-bold text-gray-700 mb-8 bg-gray-50 shadow-sm border border-gray-200 py-2.5 px-6 rounded-full mx-auto z-10">
+                <span class="flex items-center"><i class="fa-solid fa-tractor mr-1.5 text-green-600"></i> ${appState.t('farmer')}</span>
+                <i class="fa-solid fa-chevron-right text-gray-400 text-[10px]"></i>
+                <span class="uppercase tracking-wider font-extrabold text-primary">KrishiUdaan</span>
+                <i class="fa-solid fa-chevron-right text-gray-400 text-[10px]"></i>
+                <span class="flex items-center"><i class="fa-solid fa-store mr-1.5 text-blue-600"></i> ${appState.t('dealer')}</span>
+                <i class="fa-solid fa-chevron-right text-gray-400 text-[10px]"></i>
+                <span class="flex items-center"><i class="fa-solid fa-truck mr-1.5 text-orange-500"></i> ${appState.t('logistics')}</span>
+                <i class="fa-solid fa-chevron-right text-gray-400 text-[10px]"></i>
+                <span class="flex items-center"><i class="fa-solid fa-snowflake mr-1.5 text-cyan-500"></i> ${appState.t('storage')}</span>
+                <i class="fa-solid fa-chevron-right text-gray-400 text-[10px]"></i>
+                <span class="flex items-center"><i class="fa-solid fa-shop mr-1.5 text-gray-600"></i> ${appState.t('market')}</span>
             </div>
             
             <!-- Stakeholder Cards -->
             <div class="w-full max-w-5xl mx-auto px-4 z-20 relative mb-4">
-                <h3 class="text-center text-sm font-bold text-gray-600 uppercase tracking-widest mb-4">Select Your Role to Enter</h3>
+                <h3 class="text-center text-sm md:text-base font-extrabold text-primary uppercase tracking-widest mb-6 animate-pulse flex items-center justify-center gap-3"><i class="fa-solid fa-angles-down"></i> Select Your Role to Enter <i class="fa-solid fa-angles-down"></i></h3>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
                 <div class="bg-white/90 rounded-2xl shadow-sm border border-gray-200 p-4 flex flex-col items-center text-center cursor-pointer hover:-translate-y-1 hover:shadow-md hover:border-green-300 transition-all group" onclick="appState.navigate('farmerDashboard', 'farmer')">
                     <div class="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center text-2xl mb-3 group-hover:bg-green-100 ring-4 ring-white/50 transition-colors">👨‍🌾</div>
@@ -629,26 +629,26 @@ function renderLanding() {
                     <div class="flex items-center justify-center mb-4">
                         <span class="bg-purple-100 text-purple-800 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">${appState.t('roadmap')}</span>
                     </div>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 opacity-80">
-                        <div class="bg-white/40 rounded-xl border border-dashed border-gray-300 p-3 flex flex-col items-center text-center">
-                            <i class="fa-solid fa-users text-gray-500 text-xl mb-1.5"></i>
-                            <h4 class="text-xs font-extrabold text-gray-800">${appState.t('fpo')}</h4>
-                            <p class="text-[10px] text-gray-600 font-medium leading-tight">${appState.t('fpo_desc')}</p>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="bg-gray-50 rounded-xl border border-dashed border-gray-300 p-3 flex flex-col items-center text-center hover:bg-gray-100 transition-colors">
+                            <i class="fa-solid fa-users text-gray-400 text-xl mb-1.5"></i>
+                            <h4 class="text-xs font-extrabold text-gray-700">${appState.t('fpo')}</h4>
+                            <p class="text-[10px] text-gray-500 font-medium leading-tight mt-1">${appState.t('fpo_desc')}</p>
                         </div>
-                        <div class="bg-white/40 rounded-xl border border-dashed border-gray-300 p-3 flex flex-col items-center text-center">
-                            <i class="fa-solid fa-building text-gray-500 text-xl mb-1.5"></i>
-                            <h4 class="text-xs font-extrabold text-gray-800">${appState.t('supermarket')}</h4>
-                            <p class="text-[10px] text-gray-600 font-medium leading-tight">${appState.t('supermarket_desc')}</p>
+                        <div class="bg-gray-50 rounded-xl border border-dashed border-gray-300 p-3 flex flex-col items-center text-center hover:bg-gray-100 transition-colors">
+                            <i class="fa-solid fa-building text-gray-400 text-xl mb-1.5"></i>
+                            <h4 class="text-xs font-extrabold text-gray-700">${appState.t('supermarket')}</h4>
+                            <p class="text-[10px] text-gray-500 font-medium leading-tight mt-1">${appState.t('supermarket_desc')}</p>
                         </div>
-                        <div class="bg-white/40 rounded-xl border border-dashed border-gray-300 p-3 flex flex-col items-center text-center">
-                            <i class="fa-solid fa-robot text-gray-500 text-xl mb-1.5"></i>
-                            <h4 class="text-xs font-extrabold text-gray-800">${appState.t('ai')}</h4>
-                            <p class="text-[10px] text-gray-600 font-medium leading-tight">${appState.t('ai_desc')}</p>
+                        <div class="bg-gray-50 rounded-xl border border-dashed border-gray-300 p-3 flex flex-col items-center text-center hover:bg-gray-100 transition-colors">
+                            <i class="fa-solid fa-robot text-gray-400 text-xl mb-1.5"></i>
+                            <h4 class="text-xs font-extrabold text-gray-700">${appState.t('ai')}</h4>
+                            <p class="text-[10px] text-gray-500 font-medium leading-tight mt-1">${appState.t('ai_desc')}</p>
                         </div>
-                        <div class="bg-white/40 rounded-xl border border-dashed border-gray-300 p-3 flex flex-col items-center text-center">
-                            <i class="fa-solid fa-link text-gray-500 text-xl mb-1.5"></i>
-                            <h4 class="text-xs font-extrabold text-gray-800">${appState.t('blockchain')}</h4>
-                            <p class="text-[10px] text-gray-600 font-medium leading-tight">${appState.t('blockchain_desc')}</p>
+                        <div class="bg-gray-50 rounded-xl border border-dashed border-gray-300 p-3 flex flex-col items-center text-center hover:bg-gray-100 transition-colors">
+                            <i class="fa-solid fa-link text-gray-400 text-xl mb-1.5"></i>
+                            <h4 class="text-xs font-extrabold text-gray-700">${appState.t('blockchain')}</h4>
+                            <p class="text-[10px] text-gray-500 font-medium leading-tight mt-1">${appState.t('blockchain_desc')}</p>
                         </div>
                     </div>
                 </div>
