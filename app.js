@@ -413,6 +413,29 @@ const appState = {
         }
     },
 
+    settlePayment: async function(id) {
+        if (!confirm("Generate payment receipt and transfer funds to Farmer?")) return;
+        
+        const req = this.requests.find(r => r.id === id);
+        if (!req) return;
+        
+        req.payment_status = 'paid';
+        
+        // Notify farmer
+        this.notifications.unshift({
+            id: Date.now(),
+            role: 'farmer',
+            icon: '💸',
+            message: `Payment settled by Dealer for ${req.crop}. Your account is credited with the agreed amount.`,
+            timestamp: new Date().toISOString()
+        });
+        
+        if (supabaseClient) {
+            await supabaseClient.from('requests').update({ payment_status: 'paid' }).eq('id', id);
+        }
+        render();
+    },
+
     resetDemo: async function() {
         if (!confirm("Are you sure you want to reset the demo? This will delete all requests.")) return;
         
@@ -756,6 +779,18 @@ function renderFarmerDashboard() {
     
     let tabContent = '';
     
+    // Dynamic Guide Evaluation
+    let dynamicGuide = null;
+    if (incomingOffers.length > 0 && incomingOffers.some(r => r.dealer_status.startsWith('offered_'))) {
+        dynamicGuide = { title: "Dealer Offer Received!", desc: "A dealer has sent you a new offer. Review and accept it to proceed.", icon: "🤝", tab: "offers", color: "orange", btn: "View Offers" };
+    } else if (activeLogistics.length > 0 && activeLogistics.some(r => r.transport_status === 'requested' || r.transport_status === 'confirmed')) {
+        dynamicGuide = { title: "Logistics Assigned", desc: "A truck has been booked for your harvest. Track the active transaction.", icon: "🚚", tab: "active", color: "blue", btn: "Track Truck" };
+    } else if (completedReqs.length > 0 && completedReqs.some(r => r.payment_status === 'paid')) {
+        dynamicGuide = { title: "Payment Received", desc: "A dealer has settled your payment! Check your history for the receipt.", icon: "💸", tab: "history", color: "green", btn: "View Receipt" };
+    } else if (completedReqs.length > 0 && completedReqs.some(r => r.payment_status === 'pending')) {
+        dynamicGuide = { title: "Awaiting Payment", desc: "Your delivery is complete. Awaiting final payment receipt from dealer.", icon: "⏳", tab: "history", color: "gray", btn: "View History" };
+    }
+    
     if (farmerTabState === 'listings') {
         if (myListings.length === 0) {
             tabContent = '<div class="text-center py-8 text-gray-400 text-sm"><i class="fa-solid fa-seedling text-3xl mb-2 text-gray-300"></i><br>No active listings. Use the planner to publish a harvest.</div>';
@@ -953,6 +988,19 @@ function renderFarmerDashboard() {
                                     </button>
                                 </div>
                             </div>
+                        </div>
+                    ` : dynamicGuide ? `
+                        <div class="animate-fade-in bg-white rounded-xl shadow-sm border-l-4 border-${dynamicGuide.color}-500 p-6 flex flex-col sm:flex-row items-center justify-between relative overflow-hidden">
+                            <div class="z-10 text-center sm:text-left mb-4 sm:mb-0 flex items-center">
+                                <span class="text-4xl mr-4">${dynamicGuide.icon}</span>
+                                <div>
+                                    <h3 class="text-lg font-bold text-gray-800 mb-1">${dynamicGuide.title}</h3>
+                                    <p class="text-sm text-gray-600">${dynamicGuide.desc}</p>
+                                </div>
+                            </div>
+                            <button onclick="farmerTabState='${dynamicGuide.tab}'; render();" class="z-10 bg-${dynamicGuide.color === 'gray' ? 'gray-600' : dynamicGuide.color + '-500'} hover:bg-${dynamicGuide.color === 'gray' ? 'gray-700' : dynamicGuide.color + '-600'} text-white font-bold py-2.5 px-6 rounded-lg transition shadow-sm whitespace-nowrap">
+                                ${dynamicGuide.btn}
+                            </button>
                         </div>
                     ` : `
                         ${farmerViewState === 'situation' ? `
