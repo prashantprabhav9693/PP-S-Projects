@@ -598,21 +598,21 @@ function renderLanding() {
             
             <!-- Stakeholder Cards -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 w-full max-w-5xl mx-auto px-4 z-20 relative mb-4">
-                <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 flex flex-col items-center text-center cursor-pointer hover:-translate-y-1 hover:shadow-xl hover:border-green-300 transition-all group" onclick="appState.navigate('farmerDashboard', 'farmer')">
-                    <div class="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center text-3xl mb-4 group-hover:bg-green-100 transition-colors">👨‍🌾</div>
-                    <h3 class="font-bold text-gray-800 text-lg">${appState.t('farmer')}</h3>
+                <div class="bg-white rounded-2xl shadow-md border-2 border-gray-200 p-6 flex flex-col items-center text-center cursor-pointer hover:-translate-y-1 hover:shadow-xl hover:border-green-400 transition-all group" onclick="appState.navigate('farmerDashboard', 'farmer')">
+                    <div class="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center text-3xl mb-4 group-hover:bg-green-100 ring-4 ring-white transition-colors">👨‍🌾</div>
+                    <h3 class="font-bold text-gray-900 text-lg">${appState.t('farmer')}</h3>
                 </div>
-                <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 flex flex-col items-center text-center cursor-pointer hover:-translate-y-1 hover:shadow-xl hover:border-blue-300 transition-all group" onclick="appState.navigate('dealerDashboard', 'dealer')">
-                    <div class="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center text-3xl mb-4 group-hover:bg-blue-100 transition-colors">🏪</div>
-                    <h3 class="font-bold text-gray-800 text-lg">${appState.t('dealer')}</h3>
+                <div class="bg-white rounded-2xl shadow-md border-2 border-gray-200 p-6 flex flex-col items-center text-center cursor-pointer hover:-translate-y-1 hover:shadow-xl hover:border-blue-400 transition-all group" onclick="appState.navigate('dealerDashboard', 'dealer')">
+                    <div class="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center text-3xl mb-4 group-hover:bg-blue-100 ring-4 ring-white transition-colors">🏪</div>
+                    <h3 class="font-bold text-gray-900 text-lg">${appState.t('dealer')}</h3>
                 </div>
-                <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 flex flex-col items-center text-center cursor-pointer hover:-translate-y-1 hover:shadow-xl hover:border-orange-300 transition-all group" onclick="appState.navigate('logisticsDashboard', 'logistics')">
-                    <div class="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center text-3xl mb-4 group-hover:bg-orange-100 transition-colors">🚚</div>
-                    <h3 class="font-bold text-gray-800 text-lg">${appState.t('logistics')}</h3>
+                <div class="bg-white rounded-2xl shadow-md border-2 border-gray-200 p-6 flex flex-col items-center text-center cursor-pointer hover:-translate-y-1 hover:shadow-xl hover:border-orange-400 transition-all group" onclick="appState.navigate('logisticsDashboard', 'logistics')">
+                    <div class="w-16 h-16 bg-orange-50 rounded-full flex items-center justify-center text-3xl mb-4 group-hover:bg-orange-100 ring-4 ring-white transition-colors">🚚</div>
+                    <h3 class="font-bold text-gray-900 text-lg">${appState.t('logistics')}</h3>
                 </div>
-                <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 flex flex-col items-center text-center cursor-pointer hover:-translate-y-1 hover:shadow-xl hover:border-cyan-300 transition-all group" onclick="appState.navigate('storageDashboard', 'storage')">
-                    <div class="w-16 h-16 bg-cyan-50 rounded-full flex items-center justify-center text-3xl mb-4 group-hover:bg-cyan-100 transition-colors">🧊</div>
-                    <h3 class="font-bold text-gray-800 text-lg">${appState.t('storage')}</h3>
+                <div class="bg-white rounded-2xl shadow-md border-2 border-gray-200 p-6 flex flex-col items-center text-center cursor-pointer hover:-translate-y-1 hover:shadow-xl hover:border-cyan-400 transition-all group" onclick="appState.navigate('storageDashboard', 'storage')">
+                    <div class="w-16 h-16 bg-cyan-50 rounded-full flex items-center justify-center text-3xl mb-4 group-hover:bg-cyan-100 ring-4 ring-white transition-colors">🧊</div>
+                    <h3 class="font-bold text-gray-900 text-lg">${appState.t('storage')}</h3>
                 </div>
             </div>
 
@@ -622,26 +622,26 @@ function renderLanding() {
                     <div class="flex items-center justify-center mb-4">
                         <span class="bg-purple-100 text-purple-800 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">${appState.t('roadmap')}</span>
                     </div>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 opacity-60">
-                        <div class="bg-gray-50 rounded-xl border border-dashed border-gray-300 p-4 flex flex-col items-center text-center">
-                            <i class="fa-solid fa-users text-gray-400 text-2xl mb-2"></i>
-                            <h4 class="text-sm font-bold text-gray-600">${appState.t('fpo')}</h4>
-                            <p class="text-[10px] text-gray-500 mt-1">${appState.t('fpo_desc')}</p>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 opacity-80">
+                        <div class="bg-white/50 rounded-xl border border-dashed border-gray-400 p-4 flex flex-col items-center text-center">
+                            <i class="fa-solid fa-users text-gray-500 text-2xl mb-2"></i>
+                            <h4 class="text-sm font-extrabold text-gray-800">${appState.t('fpo')}</h4>
+                            <p class="text-[10px] text-gray-600 mt-1 font-medium">${appState.t('fpo_desc')}</p>
                         </div>
-                        <div class="bg-gray-50 rounded-xl border border-dashed border-gray-300 p-4 flex flex-col items-center text-center">
-                            <i class="fa-solid fa-building text-gray-400 text-2xl mb-2"></i>
-                            <h4 class="text-sm font-bold text-gray-600">${appState.t('supermarket')}</h4>
-                            <p class="text-[10px] text-gray-500 mt-1">${appState.t('supermarket_desc')}</p>
+                        <div class="bg-white/50 rounded-xl border border-dashed border-gray-400 p-4 flex flex-col items-center text-center">
+                            <i class="fa-solid fa-building text-gray-500 text-2xl mb-2"></i>
+                            <h4 class="text-sm font-extrabold text-gray-800">${appState.t('supermarket')}</h4>
+                            <p class="text-[10px] text-gray-600 mt-1 font-medium">${appState.t('supermarket_desc')}</p>
                         </div>
-                        <div class="bg-gray-50 rounded-xl border border-dashed border-gray-300 p-4 flex flex-col items-center text-center">
-                            <i class="fa-solid fa-robot text-gray-400 text-2xl mb-2"></i>
-                            <h4 class="text-sm font-bold text-gray-600">${appState.t('ai')}</h4>
-                            <p class="text-[10px] text-gray-500 mt-1">${appState.t('ai_desc')}</p>
+                        <div class="bg-white/50 rounded-xl border border-dashed border-gray-400 p-4 flex flex-col items-center text-center">
+                            <i class="fa-solid fa-robot text-gray-500 text-2xl mb-2"></i>
+                            <h4 class="text-sm font-extrabold text-gray-800">${appState.t('ai')}</h4>
+                            <p class="text-[10px] text-gray-600 mt-1 font-medium">${appState.t('ai_desc')}</p>
                         </div>
-                        <div class="bg-gray-50 rounded-xl border border-dashed border-gray-300 p-4 flex flex-col items-center text-center">
-                            <i class="fa-solid fa-link text-gray-400 text-2xl mb-2"></i>
-                            <h4 class="text-sm font-bold text-gray-600">${appState.t('blockchain')}</h4>
-                            <p class="text-[10px] text-gray-500 mt-1">${appState.t('blockchain_desc')}</p>
+                        <div class="bg-white/50 rounded-xl border border-dashed border-gray-400 p-4 flex flex-col items-center text-center">
+                            <i class="fa-solid fa-link text-gray-500 text-2xl mb-2"></i>
+                            <h4 class="text-sm font-extrabold text-gray-800">${appState.t('blockchain')}</h4>
+                            <p class="text-[10px] text-gray-600 mt-1 font-medium">${appState.t('blockchain_desc')}</p>
                         </div>
                     </div>
                 </div>
