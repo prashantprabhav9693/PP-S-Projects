@@ -1,5 +1,5 @@
 /**
- * AgriBridge - Coordination Engine
+ * KrishiUdaan - Coordination Engine
  * Story-Driven MVP for Live Demonstration
  */
 
@@ -585,7 +585,7 @@ function renderLanding() {
             <div class="flex flex-wrap justify-center items-center gap-1.5 md:gap-3 text-xs md:text-sm font-bold text-gray-600 mb-12 bg-white shadow-md border border-gray-100 p-2 md:p-3 rounded-full mx-auto z-10">
                 <span class="text-green-700 px-3 py-1.5 bg-green-50 rounded-full flex items-center"><i class="fa-solid fa-tractor mr-1.5"></i> ${appState.t('farmer')}</span>
                 <i class="fa-solid fa-arrow-right text-gray-300"></i>
-                <span class="text-primary px-2 uppercase tracking-wider text-[10px] md:text-xs">AgriBridge</span>
+                <span class="text-primary px-2 uppercase tracking-wider text-[10px] md:text-xs">KrishiUdaan</span>
                 <i class="fa-solid fa-arrow-right text-gray-300"></i>
                 <span class="text-blue-700 px-3 py-1.5 bg-blue-50 rounded-full flex items-center"><i class="fa-solid fa-store mr-1.5"></i> ${appState.t('dealer')}</span>
                 <i class="fa-solid fa-arrow-right text-gray-300"></i>

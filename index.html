@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AgriBridge - Coordination Engine</title>
+    <title>KrishiUdaan - Coordination Engine</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Supabase CDN -->
@@ -16,8 +16,9 @@
                         primary: '#10B981', // Emerald 500
                         primaryDark: '#059669', // Emerald 600
                         secondary: '#3B82F6', // Blue 500
-                        dark: '#1F2937', // Gray 800
-                        light: '#F3F4F6' // Gray 100
+                        dark: '#223c20', // Dark Green
+                        light: '#F3F4F6', // Gray 100
+                        brandBg: '#F7F2E8' // Cream Background from Logo
                     },
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
@@ -33,7 +34,7 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans antialiased">
+<body class="bg-brandBg text-gray-800 font-sans antialiased">
     
     <!-- App Container -->
     <div id="app" class="flex flex-col min-h-screen">
@@ -43,8 +44,8 @@
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex justify-between h-16 items-center">
                     <div class="flex items-center cursor-pointer" onclick="appState.navigate('landing')">
-                        <i class="fa-solid fa-leaf text-primary text-2xl mr-2"></i>
-                        <span class="font-bold text-xl tracking-tight text-dark">AgriBridge</span>
+                        <img src="logo.jpg" alt="KrishiUdaan Logo" class="h-10 w-auto mr-2" style="mix-blend-mode: multiply;">
+                        <span class="font-bold text-xl tracking-tight text-dark uppercase">KrishiUdaan</span>
                     </div>
                     
                     <div class="flex items-center space-x-4">
