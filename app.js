@@ -617,7 +617,86 @@ function renderLanding() {
 let farmerViewState = 'situation'; // 'situation' or 'planner'
 let farmerTabState = 'listings'; // 'listings', 'offers', 'active', 'history'
 let dealerTabState = 'new'; // 'new', 'offers_sent', 'active', 'completed'
+let logisticsTabState = 'pending'; // 'pending', 'active', 'completed'
 let currentRecommendation = null;
+
+// -----------------------------------------------------------
+// Voice Integration (Kannada)
+// -----------------------------------------------------------
+window.startKannadaVoiceInput = function() {
+    const btn = document.getElementById('voiceBtn');
+    
+    // Check support
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+        alert("Speech recognition is not supported in this browser. Please use Chrome.");
+        return;
+    }
+    
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'kn-IN'; // Kannada
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    
+    recognition.onstart = function() {
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-1.5"></i> ಆಲಿಸಲಾಗುತ್ತಿದೆ... (Listening)';
+        btn.classList.add('bg-red-100', 'text-red-600', 'border-red-200');
+        btn.classList.remove('bg-green-100', 'text-green-700', 'border-green-200');
+    };
+    
+    recognition.onresult = function(event) {
+        const transcript = event.results[0][0].transcript.toLowerCase();
+        console.log("Voice Transcript:", transcript);
+        
+        let foundCrop = false;
+        
+        // Simple mapping for common crops
+        if (transcript.includes('ಟೊಮೇಟೊ') || transcript.includes('ಟೊಮೆಟೊ') || transcript.includes('tomato')) {
+            document.getElementById('hpCrop').value = 'Tomato'; foundCrop = true;
+        } else if (transcript.includes('ಈರುಳ್ಳಿ') || transcript.includes('onion')) {
+            document.getElementById('hpCrop').value = 'Onion'; foundCrop = true;
+        } else if (transcript.includes('ಆಲೂಗಡ್ಡೆ') || transcript.includes('potato')) {
+            document.getElementById('hpCrop').value = 'Potato'; foundCrop = true;
+        }
+        
+        // Extract numbers for quantity
+        const nums = transcript.match(/\d+/g);
+        if (nums && nums.length > 0) {
+            document.getElementById('hpQty').value = nums[0];
+            // If they said quintal or tonnes, set unit
+            if (transcript.includes('ಕ್ವಿಂಟಾಲ್') || transcript.includes('quintal')) {
+                document.getElementById('hpUnit').value = 'Quintals';
+            } else {
+                document.getElementById('hpUnit').value = 'kg'; // default
+            }
+        }
+        
+        if (foundCrop) {
+            // Auto-trigger the crop other toggle just in case
+            document.getElementById('hpCropOther').classList.toggle('hidden', document.getElementById('hpCrop').value !== 'Other');
+        } else {
+            alert("Recognized text: " + event.results[0][0].transcript + "\n\nCould not perfectly map crop. Please select manually.");
+        }
+    };
+    
+    recognition.onerror = function(event) {
+        console.error("Speech recognition error:", event.error);
+        alert("Voice input failed. Please try again or enter manually.");
+        resetVoiceBtn(btn);
+    };
+    
+    recognition.onend = function() {
+        resetVoiceBtn(btn);
+    };
+    
+    function resetVoiceBtn(b) {
+        b.innerHTML = '<i class="fa-solid fa-microphone mr-1.5"></i> ಮಾತನಾಡಿ (Speak)';
+        b.classList.remove('bg-red-100', 'text-red-600', 'border-red-200');
+        b.classList.add('bg-green-100', 'text-green-700', 'border-green-200');
+    }
+    
+    recognition.start();
+};
 
 window.handleHarvestPlan = function(event) {
     if (event) event.preventDefault();
@@ -752,18 +831,21 @@ function renderFarmerDashboard() {
         if (completedReqs.length === 0) {
             tabContent = '<div class="text-center py-8 text-gray-400 text-sm"><i class="fa-solid fa-clock-rotate-left text-3xl mb-2 text-gray-300"></i><br>No order history available.</div>';
         } else {
-            tabContent = completedReqs.map(req => `
-                <div class="bg-white border border-gray-100 rounded-lg p-5 shadow-sm flex justify-between items-center mb-4">
+            tabContent = completedReqs.map(req => {
+                const isPaid = req.payment_status === 'paid';
+                return `
+                <div class="bg-white border ${isPaid ? 'border-green-300 shadow-md' : 'border-gray-100 shadow-sm'} rounded-lg p-5 flex justify-between items-center mb-4">
                     <div>
                         <p class="font-bold text-lg text-gray-800 capitalize">${appState.t(req.crop)} <span class="text-sm text-gray-500 font-normal">(${req.quantity})</span></p>
                         <p class="text-xs text-gray-500 mt-1"><i class="fa-solid fa-location-dot mr-1"></i> ${req.village}</p>
+                        ${isPaid ? `<div class="mt-3 inline-block bg-green-50 text-green-700 text-xs font-bold px-3 py-1.5 rounded-md border border-green-200"><i class="fa-solid fa-file-invoice-dollar mr-1"></i> Payment Receipt #INV-${req.id ? req.id.substring(0,6).toUpperCase() : '001'}</div>` : `<div class="mt-3 inline-block bg-orange-50 text-orange-700 text-xs font-bold px-3 py-1.5 rounded-md border border-orange-200"><i class="fa-regular fa-clock mr-1"></i> Awaiting Payment</div>`}
                     </div>
                     <div class="text-right">
                         <span class="bg-green-100 text-green-800 text-xs font-bold px-2 py-1 rounded border border-green-200"><i class="fa-solid fa-check-double mr-1"></i> Completed</span>
                         <p class="text-[10px] text-gray-400 mt-2">Closed</p>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
         }
     }
 
@@ -772,7 +854,22 @@ function renderFarmerDashboard() {
             <div class="flex items-center justify-between mb-6">
                 <h2 class="text-2xl font-bold text-gray-800">Farmer Command Center</h2>
                 <div class="flex items-center space-x-3">
-                    <button class="bg-white border border-gray-200 text-gray-600 px-3 py-1.5 rounded-lg text-sm font-bold shadow-sm"><i class="fa-solid fa-bell mr-1"></i> Alerts</button>
+                    <div class="relative group">
+                        <button class="bg-white border border-gray-200 text-gray-600 px-3 py-1.5 rounded-lg text-sm font-bold shadow-sm relative">
+                            <i class="fa-solid fa-bell mr-1"></i> Alerts
+                            ${appState.notifications.filter(n => n.role === 'farmer').length > 0 ? `<span class="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center border-2 border-white">${appState.notifications.filter(n => n.role === 'farmer').length}</span>` : ''}
+                        </button>
+                        <div class="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 overflow-hidden">
+                            <div class="bg-gray-50 border-b border-gray-100 px-3 py-2 text-xs font-bold text-gray-700">Notifications</div>
+                            <div class="max-h-60 overflow-y-auto">
+                                ${appState.notifications.filter(n => n.role === 'farmer').length === 0 ? '<div class="p-4 text-center text-xs text-gray-500">No new alerts</div>' : appState.notifications.filter(n => n.role === 'farmer').map(n => `
+                                    <div class="px-3 py-2 border-b border-gray-50 hover:bg-gray-50 text-xs">
+                                        <span class="mr-1">${n.icon}</span> ${n.message}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             
@@ -873,7 +970,12 @@ function renderFarmerDashboard() {
                             <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                                 <div class="flex justify-between items-center mb-4 border-b border-gray-100 pb-4">
                                     <h2 class="text-lg font-bold text-gray-800">Harvest Details</h2>
-                                    <button onclick="farmerViewState='situation'; render();" class="text-xs font-bold text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+                                    <div class="flex items-center gap-2">
+                                        <button id="voiceBtn" onclick="startKannadaVoiceInput()" type="button" class="bg-green-100 text-green-700 hover:bg-green-200 px-3 py-1 rounded-full text-xs font-bold transition flex items-center shadow-sm border border-green-200">
+                                            <i class="fa-solid fa-microphone mr-1.5"></i> ಮಾತನಾಡಿ (Speak)
+                                        </button>
+                                        <button onclick="farmerViewState='situation'; render();" class="text-xs font-bold text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+                                    </div>
                                 </div>
                                 <div id="harvest-form">
                                     <div class="grid grid-cols-2 gap-4 mb-4">
@@ -1064,16 +1166,23 @@ function renderDealerDashboard() {
             tabContent = `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">`;
             completedProc.forEach(req => {
                 const price = req.dealer_status.includes('_') ? req.dealer_status.split('_')[1] : '18';
+                const isPaid = req.payment_status === 'paid';
                 tabContent += `
-                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 flex justify-between items-center">
-                        <div>
-                            <h3 class="font-bold text-gray-900 capitalize">${appState.t(req.crop)} <span class="text-gray-500 font-normal ml-1">(${req.quantity})</span></h3>
-                            <p class="text-xs text-gray-500 mt-1">₹${price}/kg</p>
+                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 flex flex-col justify-between">
+                        <div class="flex justify-between items-start mb-4">
+                            <div>
+                                <h3 class="font-bold text-gray-900 capitalize">${appState.t(req.crop)} <span class="text-gray-500 font-normal ml-1">(${req.quantity})</span></h3>
+                                <p class="text-xs text-gray-500 mt-1">₹${price}/kg</p>
+                            </div>
+                            <div class="text-right text-xs text-gray-500 space-y-1">
+                                <p><i class="fa-solid fa-check text-green-500 mr-1"></i> Delivered</p>
+                                ${req.needs_storage ? '<p><i class="fa-solid fa-check text-green-500 mr-1"></i> Storage Approved</p>' : ''}
+                            </div>
                         </div>
-                        <div class="text-right text-xs text-gray-500 space-y-1">
-                            <p><i class="fa-solid fa-check text-green-500 mr-1"></i> Delivered</p>
-                            ${req.needs_storage ? '<p><i class="fa-solid fa-check text-green-500 mr-1"></i> Storage Approved</p>' : ''}
-                        </div>
+                        ${isPaid ? 
+                            `<div class="mt-2 bg-green-50 text-green-700 text-center py-2 rounded text-xs font-bold border border-green-200"><i class="fa-solid fa-receipt mr-1"></i> Payment Settled (Receipt Generated)</div>` : 
+                            `<button onclick="appState.settlePayment('${req.id}')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded transition shadow-sm text-xs border-none cursor-pointer">Settle Payment (Generate Receipt)</button>`
+                        }
                     </div>
                 `;
             });
@@ -1177,97 +1286,112 @@ function renderLogisticsDashboard() {
 
                 <!-- Right: Jobs -->
                 <div class="lg:col-span-5 space-y-6">
-                    
-                    <!-- Pending Jobs -->
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col h-[50%]">
-                        <div class="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 rounded-t-xl">
-                            <h3 class="text-sm font-bold text-gray-800">Pending Pickups</h3>
-                            <span class="bg-orange-100 text-orange-800 text-xs font-bold px-2 py-0.5 rounded-full">${assigned.length}</span>
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col h-[600px]">
+                        <!-- Tabs -->
+                        <div class="flex bg-gray-50 border-b border-gray-200 rounded-t-xl overflow-hidden">
+                            <button onclick="logisticsTabState='pending'; render();" class="flex-1 py-3 text-xs font-bold transition border-b-2 ${logisticsTabState === 'pending' ? 'border-orange-500 text-orange-600 bg-white' : 'border-transparent text-gray-500 hover:bg-gray-100'}">
+                                Pending Pickups <span class="ml-1 bg-orange-100 text-orange-800 px-1.5 py-0.5 rounded-full text-[10px]">${assigned.length}</span>
+                            </button>
+                            <button onclick="logisticsTabState='active'; render();" class="flex-1 py-3 text-xs font-bold transition border-b-2 ${logisticsTabState === 'active' ? 'border-blue-500 text-blue-600 bg-white' : 'border-transparent text-gray-500 hover:bg-gray-100'}">
+                                Current <span class="ml-1 bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded-full text-[10px]">${active.length}</span>
+                            </button>
+                            <button onclick="logisticsTabState='completed'; render();" class="flex-1 py-3 text-xs font-bold transition border-b-2 ${logisticsTabState === 'completed' ? 'border-green-500 text-green-600 bg-white' : 'border-transparent text-gray-500 hover:bg-gray-100'}">
+                                Completed <span class="ml-1 bg-green-100 text-green-800 px-1.5 py-0.5 rounded-full text-[10px]">${appState.requests.filter(r => r.transport_status === 'completed').length}</span>
+                            </button>
                         </div>
+                        
                         <div class="p-4 overflow-y-auto flex-grow">
     `;
 
-    if (assigned.length === 0) {
-        html += `<div class="h-full flex items-center justify-center text-center text-sm text-gray-400 py-8">No pending transport requests.</div>`;
-    } else {
-        if (assigned.length > 1) {
-            html += `
-                <div class="mb-4 bg-yellow-50 border border-yellow-200 rounded p-3 text-xs text-yellow-800 flex items-start">
-                    <i class="fa-solid fa-lightbulb text-yellow-500 mt-0.5 mr-2"></i>
-                    <div>
-                        <strong class="block mb-1">Consolidation Opportunity</strong>
-                        You have ${assigned.length} pickups in the same zone. Combine loads to save ~24% on fuel.
+    if (logisticsTabState === 'pending') {
+        if (assigned.length === 0) {
+            html += `<div class="h-full flex items-center justify-center text-center text-sm text-gray-400 py-8">No pending transport requests.</div>`;
+        } else {
+            if (assigned.length > 1) {
+                html += `
+                    <div class="mb-4 bg-yellow-50 border border-yellow-200 rounded p-3 text-xs text-yellow-800 flex items-start">
+                        <i class="fa-solid fa-lightbulb text-yellow-500 mt-0.5 mr-2"></i>
+                        <div>
+                            <strong class="block mb-1">Consolidation Opportunity</strong>
+                            You have ${assigned.length} pickups in the same zone. Combine loads to save ~24% on fuel.
+                        </div>
                     </div>
-                </div>
-            `;
+                `;
+            }
+            assigned.forEach(req => {
+                const distance = Math.floor(Math.random() * 20) + 10;
+                const cost = distance * 45;
+                const eta = Math.floor(Math.random() * 45) + 15;
+                const vehicle = parseInt(req.quantity) > 50 ? 'Medium Truck' : 'Mini Truck';
+                
+                html += `
+                    <div class="border border-gray-200 rounded-lg p-4 mb-3 hover:border-orange-300 transition shadow-sm bg-white">
+                        <div class="flex justify-between items-start mb-3 border-b border-gray-100 pb-2">
+                            <div>
+                                <p class="font-bold text-gray-900 text-sm capitalize">${appState.t(req.crop)} <span class="text-primary ml-1">${req.quantity}</span></p>
+                            </div>
+                            <span class="text-[10px] font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded border border-orange-200">Requires ${vehicle}</span>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-y-2 text-xs text-gray-600 mb-4">
+                            <p><i class="fa-solid fa-arrow-up-from-bracket w-4 text-center text-gray-400"></i> <span class="font-bold text-gray-800">${req.village}</span></p>
+                            <p><i class="fa-solid fa-arrow-right-to-bracket w-4 text-center text-gray-400"></i> <span class="font-bold text-gray-800">Dealer Warehouse</span></p>
+                            <p><i class="fa-solid fa-route w-4 text-center text-gray-400"></i> ${distance} km</p>
+                            <p><i class="fa-solid fa-indian-rupee-sign w-4 text-center text-gray-400"></i> Est. ₹${cost}</p>
+                            <p class="col-span-2 text-blue-600 font-bold"><i class="fa-regular fa-clock w-4 text-center"></i> ETA: ${eta} mins</p>
+                        </div>
+    
+                        <div class="flex gap-2">
+                            <button onclick="appState.logisticsReject('${req.id}')" class="w-1/3 bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 text-xs font-bold py-2 rounded transition">
+                                Reject
+                            </button>
+                            <button onclick="appState.logisticsConfirm('${req.id}')" class="w-2/3 bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-2 rounded shadow-sm transition">
+                                Accept Job
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
         }
-        assigned.forEach(req => {
-            const distance = Math.floor(Math.random() * 20) + 10;
-            const cost = distance * 45;
-            const eta = Math.floor(Math.random() * 45) + 15;
-            const vehicle = parseInt(req.quantity) > 50 ? 'Medium Truck' : 'Mini Truck';
-            
-            html += `
-                <div class="border border-gray-200 rounded-lg p-4 mb-3 hover:border-orange-300 transition shadow-sm bg-white">
-                    <div class="flex justify-between items-start mb-3 border-b border-gray-100 pb-2">
-                        <div>
-                            <p class="font-bold text-gray-900 text-sm capitalize">${appState.t(req.crop)} <span class="text-primary ml-1">${req.quantity}</span></p>
-                        </div>
-                        <span class="text-[10px] font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded border border-orange-200">Requires ${vehicle}</span>
-                    </div>
-                    
-                    <div class="grid grid-cols-2 gap-y-2 text-xs text-gray-600 mb-4">
-                        <p><i class="fa-solid fa-arrow-up-from-bracket w-4 text-center text-gray-400"></i> <span class="font-bold text-gray-800">${req.village}</span></p>
-                        <p><i class="fa-solid fa-arrow-right-to-bracket w-4 text-center text-gray-400"></i> <span class="font-bold text-gray-800">Dealer Warehouse</span></p>
-                        <p><i class="fa-solid fa-route w-4 text-center text-gray-400"></i> ${distance} km</p>
-                        <p><i class="fa-solid fa-indian-rupee-sign w-4 text-center text-gray-400"></i> Est. ₹${cost}</p>
-                        <p class="col-span-2 text-blue-600 font-bold"><i class="fa-regular fa-clock w-4 text-center"></i> ETA: ${eta} mins</p>
-                    </div>
-
-                    <div class="flex gap-2">
-                        <button onclick="appState.logisticsReject('${req.id}')" class="w-1/3 bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 text-xs font-bold py-2 rounded transition">
-                            Reject
-                        </button>
-                        <button onclick="appState.logisticsConfirm('${req.id}')" class="w-2/3 bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold py-2 rounded shadow-sm transition">
-                            Accept Job
-                        </button>
-                    </div>
-                </div>
-            `;
-        });
-    }
-    
-    html += `
+    } else if (logisticsTabState === 'active') {
+        if (active.length === 0) {
+            html += `<div class="h-full flex items-center justify-center text-center text-sm text-gray-400 py-8">No trucks currently on route.</div>`;
+        } else {
+            active.forEach(req => {
+                html += `
+                    <div class="border border-blue-200 bg-blue-50 rounded-lg p-3 mb-3">
+                        <div class="flex justify-between items-center mb-2">
+                            <div>
+                                <p class="font-bold text-gray-900 text-sm capitalize">${appState.t(req.crop)} <span class="text-primary">${req.quantity}</span></p>
+                                <p class="text-xs text-gray-600"><i class="fa-solid fa-truck-fast w-3"></i> En route to Dealer/Storage</p>
+                            </div>
+                            <button onclick="appState.logisticsComplete('${req.id}')" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-1.5 px-3 rounded shadow-sm transition">
+                                Complete
+                            </button>
                         </div>
                     </div>
-
-                    <!-- Active Trips -->
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col h-[50%]">
-                        <div class="p-4 border-b border-gray-100 flex justify-between items-center bg-gray-50 rounded-t-xl">
-                            <h3 class="text-sm font-bold text-gray-800">Active Deliveries</h3>
-                            <span class="bg-green-100 text-green-800 text-xs font-bold px-2 py-0.5 rounded-full">${active.length}</span>
+                `;
+            });
+        }
+    } else if (logisticsTabState === 'completed') {
+        const completed = appState.requests.filter(r => r.transport_status === 'completed');
+        if (completed.length === 0) {
+            html += `<div class="h-full flex items-center justify-center text-center text-sm text-gray-400 py-8">No completed deliveries yet.</div>`;
+        } else {
+            completed.forEach(req => {
+                html += `
+                    <div class="border border-green-200 bg-green-50 rounded-lg p-3 mb-3">
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <p class="font-bold text-gray-900 text-sm capitalize">${appState.t(req.crop)} <span class="text-primary">${req.quantity}</span></p>
+                                <p class="text-xs text-green-700"><i class="fa-solid fa-check-circle w-3"></i> Successfully Delivered</p>
+                            </div>
+                            <span class="text-[10px] font-bold text-green-800 bg-green-200 px-2 py-1 rounded">Done</span>
                         </div>
-                        <div class="p-4 overflow-y-auto flex-grow">
-    `;
-    
-    if (active.length === 0) {
-        html += `<div class="h-full flex items-center justify-center text-center text-sm text-gray-400 py-8">No trucks currently on route.</div>`;
-    } else {
-        active.forEach(req => {
-            html += `
-                <div class="border border-green-200 bg-green-50 rounded-lg p-3 mb-3">
-                    <div class="flex justify-between items-center mb-2">
-                        <div>
-                            <p class="font-bold text-gray-900 text-sm capitalize">${appState.t(req.crop)} <span class="text-primary">${req.quantity}</span></p>
-                            <p class="text-xs text-gray-600"><i class="fa-solid fa-truck-fast w-3"></i> En route to Dealer/Storage</p>
-                        </div>
-                        <button onclick="appState.logisticsComplete('${req.id}')" class="bg-green-600 hover:bg-green-700 text-white text-xs font-bold py-1.5 px-3 rounded shadow-sm transition">
-                            Complete
-                        </button>
                     </div>
-                </div>
-            `;
-        });
+                `;
+            });
+        }
     }
 
     html += `
