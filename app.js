@@ -436,6 +436,21 @@ const appState = {
         render();
     },
 
+    requestSettlement: function(id) {
+        const req = this.requests.find(r => String(r.id) === String(id));
+        if (req) {
+            this.notifications.unshift({
+                id: Date.now(),
+                role: 'dealer',
+                icon: '🔔',
+                message: `Farmer has requested payment settlement for ${req.crop}.`,
+                timestamp: new Date().toISOString()
+            });
+            alert("Payment request sent to the Dealer.");
+            render();
+        }
+    },
+
     resetDemo: async function() {
         if (!confirm("Are you sure you want to reset the demo? This will delete all requests.")) return;
         
@@ -873,7 +888,13 @@ function renderFarmerDashboard() {
                     <div>
                         <p class="font-bold text-lg text-gray-800 capitalize">${appState.t(req.crop)} <span class="text-sm text-gray-500 font-normal">(${req.quantity})</span></p>
                         <p class="text-xs text-gray-500 mt-1"><i class="fa-solid fa-location-dot mr-1"></i> ${req.village}</p>
-                        ${isPaid ? `<div class="mt-3 inline-block bg-green-50 text-green-700 text-xs font-bold px-3 py-1.5 rounded-md border border-green-200"><i class="fa-solid fa-file-invoice-dollar mr-1"></i> Payment Receipt #INV-${req.id ? req.id.substring(0,6).toUpperCase() : '001'}</div>` : `<div class="mt-3 inline-block bg-orange-50 text-orange-700 text-xs font-bold px-3 py-1.5 rounded-md border border-orange-200"><i class="fa-regular fa-clock mr-1"></i> Awaiting Payment</div>`}
+                        ${isPaid ? 
+                            `<div class="mt-3 inline-block bg-green-50 text-green-700 text-xs font-bold px-3 py-1.5 rounded-md border border-green-200"><i class="fa-solid fa-file-invoice-dollar mr-1"></i> Payment Receipt #INV-${req.id ? req.id.substring(0,6).toUpperCase() : '001'}</div>` : 
+                            `<div class="mt-3 flex gap-2">
+                                <div class="inline-block bg-orange-50 text-orange-700 text-xs font-bold px-3 py-1.5 rounded-md border border-orange-200"><i class="fa-regular fa-clock mr-1"></i> Awaiting Payment</div>
+                                <button onclick="appState.requestSettlement('${req.id}')" class="bg-gray-800 hover:bg-gray-900 text-white text-xs font-bold px-3 py-1.5 rounded-md transition shadow-sm">Request Settlement</button>
+                            </div>`
+                        }
                     </div>
                     <div class="text-right">
                         <span class="bg-green-100 text-green-800 text-xs font-bold px-2 py-1 rounded border border-green-200"><i class="fa-solid fa-check-double mr-1"></i> Completed</span>
@@ -1159,47 +1180,73 @@ function renderDealerDashboard() {
                 const sStatus = req.storage_status;
                 const price = req.dealer_status.includes('_') ? req.dealer_status.split('_')[1] : '18';
                 
-                let checklistHtml = `<p class="text-gray-800"><i class="fa-solid fa-check text-green-500 mr-2"></i> Offer Accepted</p>`;
+                let checklistHtml = `<div class="relative border-l-2 border-gray-200 ml-3 space-y-5 pb-2 mt-3">`;
+                
+                // Helper for rendering steps
+                const addStep = (isDone, icon, title, actionHtml = null) => {
+                    const color = isDone ? 'text-green-500' : 'text-gray-400';
+                    const bgColor = isDone ? 'bg-green-100' : 'bg-gray-100';
+                    const dotIcon = isDone ? 'fa-check' : icon;
+                    const textClass = isDone ? 'text-gray-900 font-bold' : 'text-gray-500';
+                    return `
+                        <div class="relative pl-6">
+                            <span class="absolute -left-[11px] top-0 flex items-center justify-center w-5 h-5 rounded-full ${bgColor} ring-4 ring-white">
+                                <i class="fa-solid ${dotIcon} text-[10px] ${color}"></i>
+                            </span>
+                            <div class="flex items-center justify-between">
+                                <h3 class="${textClass} text-sm">${title}</h3>
+                                ${actionHtml ? actionHtml : ''}
+                            </div>
+                        </div>
+                    `;
+                };
+
+                checklistHtml += addStep(true, '', 'Offer Accepted');
                 
                 // Transport Booked line
                 if (tStatus !== 'none') {
-                    checklistHtml += `<p class="text-gray-800"><i class="fa-solid fa-check text-green-500 mr-2"></i> Transport Booked</p>`;
+                    checklistHtml += addStep(true, '', 'Transport Booked');
                 } else {
-                    checklistHtml += `<div class="flex items-center justify-between"><span class="text-gray-500"><i class="fa-regular fa-circle mr-2"></i> Transport Booked</span> <button onclick="appState.dealerBookLogistics('${req.id}')" class="text-xs bg-gray-900 hover:bg-black text-white px-3 py-1.5 rounded transition shadow-sm font-bold">Book Transport</button></div>`;
+                    checklistHtml += addStep(false, 'fa-truck', 'Transport Pending', `<button onclick="appState.dealerBookLogistics('${req.id}')" class="text-[10px] bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-md transition shadow-sm font-bold tracking-wide uppercase">Book Truck</button>`);
                 }
                 
                 // Storage Approved line
                 if (req.needs_storage) {
                     if (sStatus === 'approved' || sStatus === 'stored') {
-                        checklistHtml += `<p class="text-gray-800"><i class="fa-solid fa-check text-green-500 mr-2"></i> Storage Approved</p>`;
+                        checklistHtml += addStep(true, '', 'Storage Approved');
                     } else if (tStatus !== 'none' && sStatus === 'none') {
-                        checklistHtml += `<div class="flex items-center justify-between"><span class="text-gray-500"><i class="fa-regular fa-circle mr-2"></i> Storage Approved</span> <button onclick="appState.dealerBookStorage('${req.id}')" class="text-xs bg-gray-900 hover:bg-black text-white px-3 py-1.5 rounded transition shadow-sm font-bold">Reserve Storage</button></div>`;
+                        checklistHtml += addStep(false, 'fa-snowflake', 'Storage Pending', `<button onclick="appState.dealerBookStorage('${req.id}')" class="text-[10px] bg-cyan-600 hover:bg-cyan-700 text-white px-3 py-1.5 rounded-md transition shadow-sm font-bold tracking-wide uppercase">Reserve Space</button>`);
                     } else {
-                        checklistHtml += `<p class="text-gray-500"><i class="fa-regular fa-circle mr-2"></i> Storage Approved</p>`;
+                        checklistHtml += addStep(false, 'fa-snowflake', 'Storage Pending');
                     }
                 }
                 
                 // In Transit line
                 if (tStatus === 'confirmed' || tStatus === 'completed') {
-                    checklistHtml += `<p class="text-gray-800"><i class="fa-solid fa-check text-green-500 mr-2"></i> In Transit</p>`;
+                    checklistHtml += addStep(true, '', 'In Transit');
                 } else {
-                    checklistHtml += `<p class="text-gray-500"><i class="fa-regular fa-circle mr-2"></i> In Transit</p>`;
+                    checklistHtml += addStep(false, 'fa-road', 'In Transit');
                 }
                 
                 // Delivered line
                 if (tStatus === 'completed') {
-                    checklistHtml += `<p class="text-gray-800"><i class="fa-solid fa-check text-green-500 mr-2"></i> Delivered</p>`;
+                    checklistHtml += addStep(true, '', 'Delivered');
                 } else {
-                    checklistHtml += `<p class="text-gray-500"><i class="fa-regular fa-circle mr-2"></i> Delivered</p>`;
+                    checklistHtml += addStep(false, 'fa-box', 'Delivered');
                 }
+                
+                checklistHtml += `</div>`;
 
                 tabContent += `
-                    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
-                        <div class="mb-4">
-                            <h3 class="text-lg font-bold text-gray-900 capitalize">${appState.t(req.crop)} <span class="text-gray-500 font-normal ml-1">(${req.quantity})</span></h3>
-                            <p class="text-xl font-bold text-gray-800 mt-2">₹${price}/kg</p>
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 hover:border-gray-300 transition">
+                        <div class="mb-4 flex justify-between items-start">
+                            <div>
+                                <h3 class="text-lg font-bold text-gray-900 capitalize">${appState.t(req.crop)} <span class="text-gray-500 font-normal text-sm ml-1">(${req.quantity})</span></h3>
+                                <p class="text-xl font-bold text-gray-800 mt-1">₹${price}<span class="text-sm font-normal text-gray-500">/kg</span></p>
+                            </div>
+                            <span class="bg-purple-100 text-purple-800 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">Active</span>
                         </div>
-                        <div class="text-sm space-y-3 border-t border-gray-100 pt-4">
+                        <div class="pt-2">
                             ${checklistHtml}
                         </div>
                     </div>
