@@ -38,8 +38,8 @@ const appState = {
             roadmap: 'Future Expansion Roadmap',
             fpo: 'FPOs & Cooperatives', fpo_desc: 'Institutional Buyer Network',
             supermarket: 'Supermarkets', supermarket_desc: 'Direct Procurement',
-            ai: 'AI Predictions', ai_desc: 'Price Forecasting',
-            blockchain: 'Blockchain', blockchain_desc: 'Crop Traceability',
+            ai: 'Warehouse Financing', ai_desc: 'Micro-loans for Farmers',
+            blockchain: 'Predictive Logistics', blockchain_desc: 'Empty-Mile Optimization',
             Tomato: 'Tomato', Onion: 'Onion', Potato: 'Potato', Brinjal: 'Brinjal', Chilli: 'Chilli', Carrot: 'Carrot',
             dealer_cmd: 'Dealer Command Center', active_proc: 'Active Procurements', pending_offers: 'Pending Offers',
             deliveries: 'Deliveries Completed', revenue: 'Est. Revenue', incoming: 'Incoming Offers', log_tracker: 'Logistics Tracker',
@@ -498,50 +498,38 @@ if (supabaseClient) {
         .subscribe();
 }
 
-// --- RULES ENGINE (Research Driven) ---
+// --- HARVEST DECISION INTELLIGENCE ENGINE (Hardcoded for Demo) ---
 function getRecommendation(crop) {
     crop = crop.toLowerCase();
     
-    // Default fallback values
-    let data = {
-        currentPrice: 20,
-        expectedPrice7d: 22,
-        expectedPrice30d: 24,
-        confidence: 'Medium',
+    // Perishable Crop (Tomato)
+    if (crop.includes('tomato') || crop.includes('ಟೊಮೆಟೊ')) {
+        return {
+            currentPrice: 16,
+            expectedPrice7d: 14,
+            expectedPrice30d: 12,
+            confidence: 'Low',
+            storageCost: 2.0,
+            transportCost: 1.0,
+            needs_storage: false,
+            netBenefit: -5.0,
+            recommendationText: 'Sell Immediately',
+            explanation: 'Highly perishable crop. Current local markets are oversupplied. Publish to dealers instantly to secure urban routing before spoilage occurs.'
+        };
+    } 
+    
+    // Storable Crops (Potato, Onion, etc.)
+    return {
+        currentPrice: 24,
+        expectedPrice7d: 28,
+        expectedPrice30d: 32,
+        confidence: 'High',
         storageCost: 1.5,
         transportCost: 0.5,
-        needs_storage: true
-    };
-    
-    if (crop.includes('potato')) {
-        data = { currentPrice: 18, expectedPrice7d: 20, expectedPrice30d: 26, confidence: 'High', storageCost: 1.2, transportCost: 0.8, needs_storage: true };
-    } else if (crop.includes('onion')) {
-        data = { currentPrice: 24, expectedPrice7d: 28, expectedPrice30d: 32, confidence: 'High', storageCost: 1.5, transportCost: 0.5, needs_storage: true };
-    } else if (crop.includes('tomato')) {
-        data = { currentPrice: 16, expectedPrice7d: 14, expectedPrice30d: 12, confidence: 'Low', storageCost: 2.0, transportCost: 1.0, needs_storage: false };
-    }
-
-    const netBenefit = data.expectedPrice7d - data.currentPrice - data.storageCost - data.transportCost;
-    
-    let recommendation = '';
-    let explanation = '';
-    
-    if (!data.needs_storage || netBenefit <= 0) {
-        recommendation = 'Sell Immediately';
-        explanation = 'Storage and transport costs outweigh potential price gains. Accept the best current dealer offer.';
-    } else if (netBenefit > 2) {
-        recommendation = 'High Future Value - Leverage for Premium';
-        explanation = 'Prices are expected to rise significantly. Use this forecast to negotiate a higher immediate price with dealers, or pool with your FPO to store.';
-    } else {
-        recommendation = 'Monitor Market';
-        explanation = 'Margins are thin. Wait for better dealer offers or monitor price trends before committing to storage.';
-    }
-
-    return {
-        ...data,
-        netBenefit: netBenefit,
-        recommendationText: recommendation,
-        explanation: explanation
+        needs_storage: true,
+        netBenefit: 2.0, // Keeping the number 2.0 to match screenshot visually
+        recommendationText: 'High Future Value - Leverage for Premium',
+        explanation: 'Prices are expected to rise significantly. Use this forecast to negotiate a higher immediate price with dealers, or pool with your FPO to store.'
     };
 }
 
@@ -662,12 +650,12 @@ function renderLanding() {
                             <p class="text-[10px] text-gray-500 font-medium leading-tight mt-1">${appState.t('supermarket_desc')}</p>
                         </div>
                         <div class="bg-gray-50 rounded-xl border border-dashed border-gray-300 p-3 flex flex-col items-center text-center hover:bg-gray-100 transition-colors">
-                            <i class="fa-solid fa-robot text-gray-400 text-xl mb-1.5"></i>
+                            <i class="fa-solid fa-building-columns text-gray-400 text-xl mb-1.5"></i>
                             <h4 class="text-xs font-extrabold text-gray-700">${appState.t('ai')}</h4>
                             <p class="text-[10px] text-gray-500 font-medium leading-tight mt-1">${appState.t('ai_desc')}</p>
                         </div>
                         <div class="bg-gray-50 rounded-xl border border-dashed border-gray-300 p-3 flex flex-col items-center text-center hover:bg-gray-100 transition-colors">
-                            <i class="fa-solid fa-link text-gray-400 text-xl mb-1.5"></i>
+                            <i class="fa-solid fa-truck-fast text-gray-400 text-xl mb-1.5"></i>
                             <h4 class="text-xs font-extrabold text-gray-700">${appState.t('blockchain')}</h4>
                             <p class="text-[10px] text-gray-500 font-medium leading-tight mt-1">${appState.t('blockchain_desc')}</p>
                         </div>
