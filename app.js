@@ -113,12 +113,15 @@ const appState = {
         render();
     },
 
-    notify: function(message, targetRole) {
-        this.notifications.push({ message, role: targetRole, id: Date.now() });
-        if (this.currentUserRole === targetRole || targetRole === 'all') {
-            this.unreadCount++;
-            showToast(`🔔 ${message}`, 'info');
-            renderHeader(); // Just update header for badge
+    notify: function(message, targetRole, icon = '🔔') {
+        const id = Date.now();
+        this.notifications.unshift({ id, role: targetRole, message, icon, timestamp: id });
+        
+        // Keep only latest 10 per role
+        const roleNotifs = this.notifications.filter(n => n.role === targetRole);
+        if (roleNotifs.length > 10) {
+            const lastToKeep = roleNotifs[9];
+            this.notifications = this.notifications.filter(n => n.role !== targetRole || n.id >= lastToKeep.id);
         }
     },
 
@@ -155,16 +158,25 @@ const appState = {
         req.storage_status = 'none';
         
         this.requests.unshift(req);
-        this.notify('New harvest available nearby.', 'dealer');
+        this.notify('Harvest successfully published.', 'farmer', '📢');
+        this.notify('New harvest available for bidding.', 'dealer', '📢');
         render();
 
         if (supabaseClient) {
-            const { error } = await supabaseClient.from('requests').insert([req]);
+            const { data, error } = await supabaseClient.from('requests').insert([req]).select();
             if (error) {
                 console.error("Error saving request:", error);
-            } else if (N8N_WEBHOOK_URL && N8N_WEBHOOK_URL !== 'YOUR_WEBHOOK_URL_HERE') {
-                // Standard REST API call
-                fetch(N8N_WEBHOOK_URL, {
+            } else if (data && data.length > 0) {
+                // Update local request with DB-generated ID
+                const idx = this.requests.indexOf(req);
+                if (idx > -1) {
+                    this.requests[idx] = data[0];
+                    render(); // Re-render to update DOM IDs (like buttons)
+                }
+                
+                if (N8N_WEBHOOK_URL && N8N_WEBHOOK_URL !== 'YOUR_WEBHOOK_URL_HERE') {
+                    // Standard REST API call
+                    fetch(N8N_WEBHOOK_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(req)
@@ -179,35 +191,72 @@ const appState = {
     },
 
     dealerMakeOffer: async function(id) {
+        console.log(`[DEBUG] 1. Button click event fired for id: ${id}`);
         const input = document.getElementById(`offer-${id}`);
-        if (!input || !input.value) return alert('Please enter a price');
+        console.log(`[DEBUG] 2. Input element found:`, !!input, `Value:`, input ? input.value : null);
+        
+        if (!input || !input.value) {
+            console.error('[DEBUG] Validation failed: No input or empty value.');
+            return alert('Please enter a price');
+        }
+        
         const price = input.value;
-        const req = this.requests.find(r => r.id === id);
+        console.log(`[DEBUG] 3. Price read correctly: ${price}`);
+        
+        const req = this.requests.find(r => String(r.id) === String(id));
+        console.log(`[DEBUG] 4. Local request found:`, !!req, req);
+        
         if (req) {
+            const previousStatus = req.dealer_status;
             req.dealer_status = 'offered_' + price;
-            // Removed auto-accept hack: req.status remains 'submitted' so the farmer can accept it.
+            console.log(`[DEBUG] 6. Local state updated. New dealer_status: ${req.dealer_status}`);
             
-            this.notify(`Offer of ₹${price}/kg sent to farmer!`, 'dealer');
+            console.log(`[DEBUG] 5. Sending update to Supabase...`);
+            if (supabaseClient) {
+                // Use req.id directly to preserve type (int vs uuid)
+                const { error } = await supabaseClient.from('requests')
+                    .update({ dealer_status: req.dealer_status })
+                    .eq('id', req.id);
+                
+                if (error) {
+                    console.error(`[DEBUG] Supabase update failed:`, error);
+                    req.dealer_status = previousStatus; // revert
+                    return alert("Database update failed. See console.");
+                }
+                console.log(`[DEBUG] 5. Supabase update succeeded.`);
+            }
+            
+            this.notify('Offer submitted successfully.', 'dealer', '🔔');
+            this.notify('Dealer submitted an offer for your harvest.', 'farmer', '🔔');
+            
+            console.log(`[DEBUG] 7. Re-rendering UI...`);
             render();
-            if (supabaseClient) await supabaseClient.from('requests').update({ dealer_status: req.dealer_status }).eq('id', id);
             
-            // Fire Webhook: Dealer makes an offer
+            console.log(`[DEBUG] 8. Firing Webhook...`);
             fetch('https://prabhav-prashant.app.n8n.cloud/webhook/new-offer', {
                 method: 'POST',
                 mode: 'no-cors',
                 body: JSON.stringify({...req, offered_price: price})
-            }).catch(e => console.log('n8n error:', e));
+            }).catch(e => console.error('[DEBUG] Webhook error:', e));
+            
+            console.log(`[DEBUG] 9. Flow complete.`);
+        } else {
+            console.error(`[DEBUG] Failed to find request with id: ${id} in local state!`);
         }
     },
 
     farmerAcceptOffer: async function(id) {
-        const req = this.requests.find(r => r.id === id);
+        const req = this.requests.find(r => String(r.id) === String(id));
         if (req) {
+            if (supabaseClient) {
+                const { error } = await supabaseClient.from('requests').update({ status: 'dealer_accepted', dealer_status: 'accepted' }).eq('id', req.id);
+                if (error) return alert("Update failed.");
+            }
             req.status = 'dealer_accepted';
             req.dealer_status = 'accepted';
-            this.notify('Farmer accepted your offer.', 'dealer');
+            this.notify('You accepted the dealer offer.', 'farmer', '🤝');
+            this.notify('Farmer accepted your offer.', 'dealer', '🤝');
             render();
-            if (supabaseClient) await supabaseClient.from('requests').update({ status: req.status, dealer_status: req.dealer_status }).eq('id', id);
             
             // Fire Automation 2 Webhook (Offer Accepted)
             fetch('https://prabhav-prashant.app.n8n.cloud/webhook/offer-accepted', {
@@ -221,7 +270,7 @@ const appState = {
     
     farmerRejectOffer: function(id) {
         // Just hide it locally for the demo
-        const req = this.requests.find(r => r.id === id);
+        const req = this.requests.find(r => String(r.id) === String(id));
         if (req) {
             req.dealer_status = 'pending'; // Reverts it
             render();
@@ -239,12 +288,16 @@ const appState = {
     },
 
     dealerBookLogistics: async function(id) {
-        const req = this.requests.find(r => r.id === id);
+        const req = this.requests.find(r => String(r.id) === String(id));
         if (req) {
+            if (supabaseClient) {
+                const { error } = await supabaseClient.from('requests').update({ transport_status: 'requested' }).eq('id', req.id);
+                if (error) return alert("Update failed.");
+            }
             req.transport_status = 'requested';
-            this.notify('Logistics booked successfully.', 'dealer');
+            this.notify('Logistics has been booked.', 'farmer', '🚚');
+            this.notify('New pickup assigned.', 'logistics', '🚚');
             render();
-            if (supabaseClient) await supabaseClient.from('requests').update({ transport_status: req.transport_status }).eq('id', id);
             
             // Fire Automation 2 Webhook
             fetch('https://prabhav-prashant.app.n8n.cloud/webhook/logistics-dispatch', {
@@ -256,7 +309,7 @@ const appState = {
     },
 
     farmerBookLogistics: async function(id) {
-        const req = this.requests.find(r => r.id === id);
+        const req = this.requests.find(r => String(r.id) === String(id));
         if (req) {
             req.transport_status = 'requested';
             this.notify('Self-logistics booked successfully.', 'farmer');
@@ -272,12 +325,15 @@ const appState = {
     },
 
     dealerBookStorage: async function(id) {
-        const req = this.requests.find(r => r.id === id);
+        const req = this.requests.find(r => String(r.id) === String(id));
         if (req) {
+            if (supabaseClient) {
+                const { error } = await supabaseClient.from('requests').update({ storage_status: 'requested' }).eq('id', req.id);
+                if (error) return alert("Update failed.");
+            }
             req.storage_status = 'requested';
-            this.notify('Storage space requested.', 'dealer');
+            this.notify('New reservation request received.', 'storage', '❄️');
             render();
-            if (supabaseClient) await supabaseClient.from('requests').update({ storage_status: req.storage_status }).eq('id', id);
             
             // Fire Automation 3 Webhook
             fetch('https://prabhav-prashant.app.n8n.cloud/webhook/storage-reservation', {
@@ -289,39 +345,53 @@ const appState = {
     },
 
     logisticsConfirm: async function(id) {
-        const req = this.requests.find(r => r.id === id);
+        const req = this.requests.find(r => String(r.id) === String(id));
         if (req) {
+            if (supabaseClient) {
+                const { error } = await supabaseClient.from('requests').update({ transport_status: 'confirmed' }).eq('id', req.id);
+                if (error) return alert("Update failed.");
+            }
             req.transport_status = 'confirmed';
-            this.notify('Transport confirmed.', 'dealer');
+            this.notify('Pickup confirmed.', 'logistics', '🚚');
+            this.notify('Logistics partner accepted pickup.', 'dealer', '🚚');
             render();
-            if (supabaseClient) await supabaseClient.from('requests').update({ transport_status: req.transport_status }).eq('id', id);
         }
     },
     
     logisticsComplete: async function(id) {
-        const req = this.requests.find(r => r.id === id);
+        const req = this.requests.find(r => String(r.id) === String(id));
         if (req) {
+            if (supabaseClient) {
+                const { error } = await supabaseClient.from('requests').update({ status: 'completed', transport_status: 'completed' }).eq('id', req.id);
+                if (error) return alert("Update failed.");
+            }
             req.status = 'completed';
             req.transport_status = 'completed';
-            this.notify('Delivery completed successfully.', 'dealer');
-            this.notify('Your harvest reached the destination.', 'farmer');
+            this.notify('Delivery completed.', 'logistics', '✅');
+            this.notify('Delivery completed successfully.', 'farmer', '✅');
+            this.notify('Transaction completed successfully.', 'dealer', '✅');
+            if (req.needs_storage) this.notify('Produce received successfully.', 'storage', '✅');
             render();
-            if (supabaseClient) await supabaseClient.from('requests').update({ status: req.status, transport_status: req.transport_status }).eq('id', id);
         }
     },
 
     storageAccept: async function(id) {
-        const req = this.requests.find(r => r.id === id);
+        const req = this.requests.find(r => String(r.id) === String(id));
         if (req) {
+            if (supabaseClient) {
+                const { error } = await supabaseClient.from('requests').update({ storage_status: 'approved' }).eq('id', req.id);
+                if (error) return alert("Update failed.");
+            }
             req.storage_status = 'approved';
-            this.notify('Storage reservation approved.', 'dealer');
+            this.notify('Reservation approved.', 'storage', '❄️');
+            this.notify('Cold storage reservation approved.', 'dealer', '❄️');
+            this.notify('Cold storage reservation approved.', 'farmer', '❄️');
             render();
-            if (supabaseClient) await supabaseClient.from('requests').update({ storage_status: req.storage_status }).eq('id', id);
         }
     },
     
     storageReject: async function(id) {
-        const req = this.requests.find(r => r.id === id);
+        const req = this.requests.find(r => String(r.id) === String(id));
         if (req) {
             req.storage_status = 'rejected';
             this.notify('Storage reservation rejected.', 'dealer');
@@ -333,7 +403,7 @@ const appState = {
     logisticsReject: async function(id) {
         const reason = prompt("Enter rejection reason (e.g. Truck unavailable, Route not serviceable):");
         if (!reason) return;
-        const req = this.requests.find(r => r.id === id);
+        const req = this.requests.find(r => String(r.id) === String(id));
         if (req) {
             req.transport_status = 'rejected';
             this.notify(`Logistics rejected: ${reason}`, 'dealer');
@@ -363,8 +433,24 @@ const appState = {
 if (supabaseClient) {
     supabaseClient.channel('public:requests')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'requests' }, (payload) => {
-            // Automatically reload data across all clients when a database change occurs
-            appState.loadRequests();
+            if (payload.eventType === 'INSERT') {
+                const exists = appState.requests.find(r => String(r.id) === String(payload.new.id));
+                if (!exists) {
+                    appState.requests.unshift(payload.new);
+                    render();
+                }
+            } else if (payload.eventType === 'UPDATE') {
+                const index = appState.requests.findIndex(r => String(r.id) === String(payload.new.id));
+                if (index !== -1) {
+                    appState.requests[index] = { ...appState.requests[index], ...payload.new };
+                } else {
+                    appState.requests.unshift(payload.new);
+                }
+                render();
+            } else if (payload.eventType === 'DELETE') {
+                appState.requests = appState.requests.filter(r => String(r.id) !== String(payload.old.id));
+                render();
+            }
         })
         .subscribe();
 }
@@ -693,6 +779,8 @@ function renderFarmerDashboard() {
                 
                 <!-- Left Column: KPIs (Market Intel) -->
                 <div class="lg:col-span-4 space-y-6">
+                    ${renderRecentActivity('farmer')}
+                    
                     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
                         <div class="flex items-center justify-between mb-4">
                             <h3 class="text-xs font-bold text-gray-500 uppercase tracking-wider"><i class="fa-solid fa-chart-line mr-1 text-primary"></i> Market Prices</h3>
@@ -929,6 +1017,17 @@ function renderDealerDashboard() {
                     checklistHtml += `<div class="flex items-center justify-between"><span class="text-gray-500"><i class="fa-regular fa-circle mr-2"></i> Transport Booked</span> <button onclick="appState.dealerBookLogistics('${req.id}')" class="text-xs bg-gray-900 hover:bg-black text-white px-3 py-1.5 rounded transition shadow-sm font-bold">Book Transport</button></div>`;
                 }
                 
+                // Storage Approved line
+                if (req.needs_storage) {
+                    if (sStatus === 'approved' || sStatus === 'stored') {
+                        checklistHtml += `<p class="text-gray-800"><i class="fa-solid fa-check text-green-500 mr-2"></i> Storage Approved</p>`;
+                    } else if (tStatus !== 'none' && sStatus === 'none') {
+                        checklistHtml += `<div class="flex items-center justify-between"><span class="text-gray-500"><i class="fa-regular fa-circle mr-2"></i> Storage Approved</span> <button onclick="appState.dealerBookStorage('${req.id}')" class="text-xs bg-gray-900 hover:bg-black text-white px-3 py-1.5 rounded transition shadow-sm font-bold">Reserve Storage</button></div>`;
+                    } else {
+                        checklistHtml += `<p class="text-gray-500"><i class="fa-regular fa-circle mr-2"></i> Storage Approved</p>`;
+                    }
+                }
+                
                 // In Transit line
                 if (tStatus === 'confirmed' || tStatus === 'completed') {
                     checklistHtml += `<p class="text-gray-800"><i class="fa-solid fa-check text-green-500 mr-2"></i> In Transit</p>`;
@@ -941,17 +1040,6 @@ function renderDealerDashboard() {
                     checklistHtml += `<p class="text-gray-800"><i class="fa-solid fa-check text-green-500 mr-2"></i> Delivered</p>`;
                 } else {
                     checklistHtml += `<p class="text-gray-500"><i class="fa-regular fa-circle mr-2"></i> Delivered</p>`;
-                }
-                
-                // Storage Approved line
-                if (req.needs_storage) {
-                    if (sStatus === 'approved' || sStatus === 'stored') {
-                        checklistHtml += `<p class="text-gray-800"><i class="fa-solid fa-check text-green-500 mr-2"></i> Storage Approved</p>`;
-                    } else if (tStatus !== 'none' && sStatus === 'none') {
-                        checklistHtml += `<div class="flex items-center justify-between"><span class="text-gray-500"><i class="fa-regular fa-circle mr-2"></i> Storage Approved</span> <button onclick="appState.dealerBookStorage('${req.id}')" class="text-xs bg-gray-900 hover:bg-black text-white px-3 py-1.5 rounded transition shadow-sm font-bold">Reserve Storage</button></div>`;
-                    } else {
-                        checklistHtml += `<p class="text-gray-500"><i class="fa-regular fa-circle mr-2"></i> Storage Approved</p>`;
-                    }
                 }
 
                 tabContent += `
@@ -1000,6 +1088,8 @@ function renderDealerDashboard() {
                     <p class="text-xs md:text-sm text-gray-500 mt-1">Manage procurement bids and coordinate downstream supply chain.</p>
                 </div>
             </div>
+            
+            ${renderRecentActivity('dealer')}
 
             <!-- Unified Navigation & Workflow Stages -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
@@ -1048,6 +1138,8 @@ function renderLogisticsDashboard() {
                     <span class="ml-3 font-bold text-orange-600 text-sm">65%</span>
                 </div>
             </div>
+            
+            ${renderRecentActivity('logistics')}
             
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 <!-- Left: Visual Map -->
@@ -1200,6 +1292,8 @@ function renderStorageDashboard() {
                     <button class="bg-white border border-gray-200 text-gray-600 px-3 py-1.5 rounded text-sm font-bold shadow-sm hover:bg-gray-50"><i class="fa-solid fa-file-invoice mr-1"></i> Billing</button>
                 </div>
             </div>
+            
+            ${renderRecentActivity('storage')}
             
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 <!-- Left Sidebar: Facility Status -->
@@ -1362,26 +1456,61 @@ function renderStorageDashboard() {
 function renderHeader() {
     const navActions = document.getElementById('nav-actions');
     const roleLabel = document.getElementById('current-role-label');
-    const badge = document.getElementById('notif-badge');
 
     if (appState.currentUserRole) {
         navActions.classList.remove('hidden');
         roleLabel.innerText = appState.currentUserRole.charAt(0).toUpperCase() + appState.currentUserRole.slice(1);
-        
-        if (appState.unreadCount > 0) {
-            badge.innerText = appState.unreadCount;
-            badge.classList.remove('hidden');
-        } else {
-            badge.classList.add('hidden');
-        }
     } else {
         navActions.classList.add('hidden');
     }
 }
 
+function getRelativeTime(timestamp) {
+    const diff = Date.now() - timestamp;
+    const mins = Math.floor(diff / 60000);
+    const hours = Math.floor(mins / 60);
+    const days = Math.floor(hours / 24);
+    
+    if (mins < 1) return 'Just now';
+    if (mins < 60) return `${mins} mins ago`;
+    if (hours < 24) return `${hours} hours ago`;
+    if (days === 1) return 'Yesterday';
+    if (days < 7) return `${days} days ago`;
+    return 'Older';
+}
+
+function renderRecentActivity(role) {
+    const notifs = appState.notifications.filter(n => n.role === role).slice(0, 5);
+    if (notifs.length === 0) return '';
+    
+    let html = `
+        <div class="mb-6 bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
+                <h3 class="font-bold text-gray-800 text-sm tracking-wide uppercase">Recent Activity</h3>
+            </div>
+            <div class="divide-y divide-gray-100">
+    `;
+    
+    notifs.forEach(n => {
+        html += `
+                <div class="px-6 py-3 flex items-start gap-4 hover:bg-gray-50 transition">
+                    <span class="text-xl">${n.icon}</span>
+                    <div class="flex-grow">
+                        <p class="text-sm text-gray-800 font-medium">${n.message}</p>
+                        <p class="text-xs text-gray-500 mt-1">${getRelativeTime(n.timestamp)}</p>
+                    </div>
+                </div>
+        `;
+    });
+    
+    html += `
+            </div>
+        </div>
+    `;
+    return html;
+}
+
 function render() {
-    renderHeader();
-    appState.unreadCount = 0; // Clear badge on view change for demo purposes
     renderHeader();
 
     const mainContent = document.getElementById('main-content');
