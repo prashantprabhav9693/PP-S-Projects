@@ -186,6 +186,7 @@ const appState = {
                     else console.error("n8n webhook failed with status:", res.status);
                 })
                 .catch(err => console.error("n8n webhook error:", err));
+                }
             }
         }
     },
