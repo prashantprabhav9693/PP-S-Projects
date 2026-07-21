@@ -603,7 +603,7 @@ function renderLanding() {
             <!-- Stakeholder Cards -->
             <div class="w-full max-w-5xl mx-auto px-4 z-20 relative mb-4">
                 <div class="text-center mb-4">
-                    <h3 class="inline-flex text-sm md:text-base font-extrabold text-green-900 bg-green-100 border border-green-300 px-5 py-2 rounded-full uppercase tracking-widest animate-pulse items-center justify-center gap-2 shadow-sm"><i class="fa-solid fa-hand-pointer text-green-700"></i> Select Your Role To Enter</h3>
+                    <h3 class="inline-flex text-xs font-bold text-dark bg-green-100 border border-green-300 px-4 py-1.5 rounded-full uppercase tracking-widest animate-pulse items-center justify-center gap-2 shadow-sm"><i class="fa-solid fa-arrow-down text-dark"></i> Select Your Role To Enter <i class="fa-solid fa-arrow-down text-dark"></i></h3>
                 </div>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
                 <div class="bg-white/90 rounded-2xl shadow-sm border border-gray-200 p-5 flex flex-col items-center text-center cursor-pointer hover:-translate-y-1 hover:shadow-md hover:border-green-300 transition-all group" onclick="appState.navigate('farmerDashboard', 'farmer')">
