@@ -576,17 +576,17 @@ function renderWorkflowTracker(req) {
 
 function renderLanding() {
     return `
-        <div class="animate-fade-in flex flex-col justify-center items-center w-full pt-4 pb-12">
+        <div class="animate-fade-in flex flex-col justify-center items-center w-full pt-1 pb-4">
             
             <!-- Hero Messaging -->
-            <div class="text-center mb-4 mt-2">
-                <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight mb-2" style="font-family: 'Playfair Display', serif;">Krishi<span class="text-dark">Udaan</span></h1>
-                <p class="text-lg text-gray-800 font-bold mb-2">The Digital Coordination Layer for Post-Harvest Agriculture</p>
-                <p class="text-sm text-gray-700 max-w-2xl mx-auto font-medium">Connecting Farmers, Dealers, Logistics Providers and Cold Storage Operators through one coordinated workflow.</p>
+            <div class="text-center mb-3 mt-1">
+                <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight mb-1" style="font-family: 'Playfair Display', serif;">Krishi<span class="text-dark">Udaan</span></h1>
+                <p class="text-base text-gray-800 font-bold mb-1">The Digital Coordination Layer for Post-Harvest Agriculture</p>
+                <p class="text-xs text-gray-700 max-w-2xl mx-auto font-medium">Connecting Farmers, Dealers, Logistics Providers and Cold Storage Operators through one coordinated workflow.</p>
             </div>
             
             <!-- Visual Flow diagram -->
-            <div class="flex flex-wrap justify-center items-center gap-2 md:gap-4 text-[10px] md:text-xs font-bold text-gray-700 mb-8 bg-gray-50 shadow-sm border border-gray-200 py-2.5 px-6 rounded-full mx-auto z-10">
+            <div class="flex flex-wrap justify-center items-center gap-1 md:gap-3 text-[9px] md:text-xs font-bold text-gray-700 mb-4 bg-gray-50 shadow-sm border border-gray-200 py-1.5 px-4 rounded-full mx-auto z-10 scale-95">
                 <span class="flex items-center"><i class="fa-solid fa-tractor mr-1.5 text-green-600"></i> ${appState.t('farmer')}</span>
                 <i class="fa-solid fa-chevron-right text-gray-400 text-[10px]"></i>
                 <span class="uppercase tracking-wider font-extrabold text-primary">KrishiUdaan</span>
@@ -601,24 +601,26 @@ function renderLanding() {
             </div>
             
             <!-- Stakeholder Cards -->
-            <div class="w-full max-w-5xl mx-auto px-4 z-20 relative mb-4">
-                <h3 class="text-center text-sm md:text-base font-extrabold text-primary uppercase tracking-widest mb-6 animate-pulse flex items-center justify-center gap-3"><i class="fa-solid fa-angles-down"></i> Select Your Role to Enter <i class="fa-solid fa-angles-down"></i></h3>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-                <div class="bg-white/90 rounded-2xl shadow-sm border border-gray-200 p-4 flex flex-col items-center text-center cursor-pointer hover:-translate-y-1 hover:shadow-md hover:border-green-300 transition-all group" onclick="appState.navigate('farmerDashboard', 'farmer')">
-                    <div class="w-12 h-12 bg-green-50 rounded-full flex items-center justify-center text-2xl mb-3 group-hover:bg-green-100 ring-4 ring-white/50 transition-colors">👨‍🌾</div>
-                    <h3 class="font-bold text-gray-900 text-base">${appState.t('farmer')}</h3>
+            <div class="w-full max-w-5xl mx-auto px-4 z-20 relative mb-3">
+                <div class="text-center mb-3">
+                    <h3 class="inline-flex text-sm font-black text-white bg-dark border border-gray-700 px-5 py-2 rounded-full uppercase tracking-widest animate-pulse items-center justify-center gap-2 shadow-lg"><i class="fa-solid fa-hand-pointer text-white"></i> Select Your Role To Enter</h3>
                 </div>
-                <div class="bg-white/90 rounded-2xl shadow-sm border border-gray-200 p-4 flex flex-col items-center text-center cursor-pointer hover:-translate-y-1 hover:shadow-md hover:border-blue-300 transition-all group" onclick="appState.navigate('dealerDashboard', 'dealer')">
-                    <div class="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-2xl mb-3 group-hover:bg-blue-100 ring-4 ring-white/50 transition-colors">🏪</div>
-                    <h3 class="font-bold text-gray-900 text-base">${appState.t('dealer')}</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+                <div class="bg-white/90 rounded-2xl shadow-sm border border-gray-200 p-3 flex flex-col items-center text-center cursor-pointer hover:-translate-y-1 hover:shadow-md hover:border-green-300 transition-all group" onclick="appState.navigate('farmerDashboard', 'farmer')">
+                    <div class="w-10 h-10 bg-green-50 rounded-full flex items-center justify-center text-xl mb-2 group-hover:bg-green-100 ring-2 ring-white/50 transition-colors">👨‍🌾</div>
+                    <h3 class="font-bold text-gray-900 text-sm">${appState.t('farmer')}</h3>
                 </div>
-                <div class="bg-white/90 rounded-2xl shadow-sm border border-gray-200 p-4 flex flex-col items-center text-center cursor-pointer hover:-translate-y-1 hover:shadow-md hover:border-orange-300 transition-all group" onclick="appState.navigate('logisticsDashboard', 'logistics')">
-                    <div class="w-12 h-12 bg-orange-50 rounded-full flex items-center justify-center text-2xl mb-3 group-hover:bg-orange-100 ring-4 ring-white/50 transition-colors">🚚</div>
-                    <h3 class="font-bold text-gray-900 text-base">${appState.t('logistics')}</h3>
+                <div class="bg-white/90 rounded-2xl shadow-sm border border-gray-200 p-3 flex flex-col items-center text-center cursor-pointer hover:-translate-y-1 hover:shadow-md hover:border-blue-300 transition-all group" onclick="appState.navigate('dealerDashboard', 'dealer')">
+                    <div class="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center text-xl mb-2 group-hover:bg-blue-100 ring-2 ring-white/50 transition-colors">🏪</div>
+                    <h3 class="font-bold text-gray-900 text-sm">${appState.t('dealer')}</h3>
                 </div>
-                <div class="bg-white/90 rounded-2xl shadow-sm border border-gray-200 p-4 flex flex-col items-center text-center cursor-pointer hover:-translate-y-1 hover:shadow-md hover:border-cyan-300 transition-all group" onclick="appState.navigate('storageDashboard', 'storage')">
-                    <div class="w-12 h-12 bg-cyan-50 rounded-full flex items-center justify-center text-2xl mb-3 group-hover:bg-cyan-100 ring-4 ring-white/50 transition-colors">🧊</div>
-                    <h3 class="font-bold text-gray-900 text-base">${appState.t('storage')}</h3>
+                <div class="bg-white/90 rounded-2xl shadow-sm border border-gray-200 p-3 flex flex-col items-center text-center cursor-pointer hover:-translate-y-1 hover:shadow-md hover:border-orange-300 transition-all group" onclick="appState.navigate('logisticsDashboard', 'logistics')">
+                    <div class="w-10 h-10 bg-orange-50 rounded-full flex items-center justify-center text-xl mb-2 group-hover:bg-orange-100 ring-2 ring-white/50 transition-colors">🚚</div>
+                    <h3 class="font-bold text-gray-900 text-sm">${appState.t('logistics')}</h3>
+                </div>
+                <div class="bg-white/90 rounded-2xl shadow-sm border border-gray-200 p-3 flex flex-col items-center text-center cursor-pointer hover:-translate-y-1 hover:shadow-md hover:border-cyan-300 transition-all group" onclick="appState.navigate('storageDashboard', 'storage')">
+                    <div class="w-10 h-10 bg-cyan-50 rounded-full flex items-center justify-center text-xl mb-2 group-hover:bg-cyan-100 ring-2 ring-white/50 transition-colors">🧊</div>
+                    <h3 class="font-bold text-gray-900 text-sm">${appState.t('storage')}</h3>
                     </div>
             </div>
             </div>
@@ -1754,13 +1756,13 @@ function render() {
 
     const tickerHtml = `
         <style>
-            .ticker-wrap { width: 100%; overflow: hidden; background-color: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); white-space: nowrap; position: relative; padding: 10px 0; }
+            .ticker-wrap { width: 100%; overflow: hidden; background-color: rgba(255, 255, 255, 0.95); backdrop-filter: blur(8px); white-space: nowrap; position: relative; padding: 4px 0; }
             .ticker { display: inline-flex; white-space: nowrap; animation: ticker 25s linear infinite; }
-            .ticker-item { display: inline-flex; align-items: center; padding: 0 2rem; font-size: 0.85rem; font-weight: 700; color: #374151; letter-spacing: 0.03em; }
+            .ticker-item { display: inline-flex; align-items: center; padding: 0 2rem; font-size: 0.75rem; font-weight: 700; color: #374151; letter-spacing: 0.03em; }
             @keyframes ticker { 0% { transform: translateX(100vw); } 100% { transform: translateX(-100%); } }
         </style>
         <div class="fixed bottom-0 left-0 w-full z-50 shadow-2xl pointer-events-none">
-            <div class="bg-gray-50 text-[10px] md:text-xs font-bold text-gray-500 px-4 py-1.5 flex items-center border-t border-gray-200">
+            <div class="bg-gray-50 text-[9px] font-bold text-gray-500 px-4 py-1 flex items-center border-t border-gray-200">
                 <span class="uppercase tracking-widest flex items-center"><i class="fa-solid fa-chart-line mr-2 text-primary"></i> ${appState.t('snapshot')}</span>
             </div>
             <div class="ticker-wrap pointer-events-auto shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] border-t border-gray-100">
