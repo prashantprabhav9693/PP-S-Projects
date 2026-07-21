@@ -528,13 +528,13 @@ function getRecommendation(crop) {
     
     if (!data.needs_storage || netBenefit <= 0) {
         recommendation = 'Sell Immediately';
-        explanation = 'The cost of storage and transport outweighs potential price gains in the near term.';
+        explanation = 'Storage and transport costs outweigh potential price gains. Accept the best current dealer offer.';
     } else if (netBenefit > 2) {
-        recommendation = 'Store for 7–14 Days';
-        explanation = 'Expected price increase covers storage and transport costs, yielding a strong net benefit.';
+        recommendation = 'High Future Value - Leverage for Premium';
+        explanation = 'Prices are expected to rise significantly. Use this forecast to negotiate a higher immediate price with dealers, or pool with your FPO to store.';
     } else {
         recommendation = 'Monitor Market';
-        explanation = 'Margin is thin. Wait for better dealer offers or monitor price trends before committing to storage.';
+        explanation = 'Margins are thin. Wait for better dealer offers or monitor price trends before committing to storage.';
     }
 
     return {
@@ -1009,12 +1009,15 @@ function renderFarmerDashboard() {
                     <!-- 1. Action Required (Planner / Recommendation) -->
                     ${currentRecommendation ? `
                         <div class="animate-fade-in bg-white rounded-xl shadow-lg border-2 ${currentRecommendation.needs_storage ? 'border-green-400' : 'border-orange-400'} overflow-hidden mb-6">
-                            <div class="p-4 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
+                            <div class="p-4 bg-gray-50 border-b border-gray-100 flex items-center justify-between flex-wrap gap-2">
                                 <div class="flex items-center">
                                     <span class="text-2xl mr-2">🧠</span>
                                     <h2 class="text-md font-bold text-gray-900 leading-tight">Harvest Decision Intelligence</h2>
                                 </div>
-                                <span class="bg-purple-100 text-purple-800 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">AI Powered</span>
+                                <div class="flex items-center gap-2">
+                                    <span class="bg-gray-200 text-gray-800 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">${appState.draftRequest ? appState.draftRequest.crop : ''} (${appState.draftRequest ? appState.draftRequest.quantity : ''})</span>
+                                    <span class="bg-purple-100 text-purple-800 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider">AI Powered</span>
+                                </div>
                             </div>
                             
                             <div class="p-5">
