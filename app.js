@@ -167,7 +167,11 @@ const appState = {
         render();
 
         if (supabaseClient) {
-            const { data, error } = await supabaseClient.from('requests').insert([req]).select();
+            // Strip local-only properties before sending to Supabase
+            const dbReq = { ...req };
+            delete dbReq.decisionEngine; 
+
+            const { data, error } = await supabaseClient.from('requests').insert([dbReq]).select();
             if (error) {
                 console.error("Error saving request:", error);
             } else if (data && data.length > 0) {
